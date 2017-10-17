@@ -16,6 +16,9 @@
 class Lexer
 
 	# Attributes
+	attr_reader :filename
+	attr_reader :data
+	attr_accessor :Tokens
 
 	# Methods
 	# def initialize
@@ -23,28 +26,28 @@ class Lexer
 	# 	incorrecTokens = Array.new 
 	# end
 
-	def readFile(fileName)
-		@fileName = fileName
-		file = File.open(@fileName,"r")
-		data = file.read
-		
-		data.each_line do |line|
-			
-			puts line
+	def initialize(filename)
+		@filename = filename
+		@tokens = []
+		@line = 1
+		@column = 1
+	end
 
-		end
+	def readFile
+		file = File.open(@filename,"r")
+		@data = file.read
  		
 		file.close
 		
-		return data
+		return true
 
 	end
- 
+
 end
 
 # MAIN
 if __FILE__ == $0
-	lexer = Lexer.new
 	filename = ARGV[0]
-	lexer.readFile(filename)
+	lexer = Lexer.new(filename)
+	lexer.readFile
 end
