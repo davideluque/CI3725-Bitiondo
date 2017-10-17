@@ -1,46 +1,50 @@
 #!/usr/bin/env ruby
 
 =begin
-Universidad Simon Bolivar
-Traductiores e Interpretadores
+	Universidad Simon Bolivar
+	CI3715: Traductores e Interpretadores
 
-@title Analizador lexico grafico para el intepretador del Lenguaje Bitiondo
+	@title Lexer del lenguaje Bitiondo
 
-@autor David Cabeza 13-10191
-@autor Fabiola Martinez 13-10838	
+	@author David Cabeza 13-10191
+	@author Fabiola Martinez 13-10838	
+
+	@description Analizador lexicografico para el intepretador del Lenguaje Bitiondo
 
 =end
 
-# def initialize
-# 	correcTokens = Array.new
-# 	incorrecTokens = Array.new 
-# end
+class Lexer
 
-def readFile(fileName)
-	@fileName = fileName
-	file = File.open(@fileName,"r")
-	data = file.read
-	
-	data.each_line do |line|
+	# Attributes
+
+	# Methods
+	# def initialize
+	# 	correcTokens = Array.new
+	# 	incorrecTokens = Array.new 
+	# end
+
+	def readFile(fileName)
+		@fileName = fileName
+		file = File.open(@fileName,"r")
+		data = file.read
 		
-		tokenArray = line.split
+		data.each_line do |line|
+			
+			puts line
 
-		tokenArray.each do |token|
-			puts token
 		end
-	end 
-	
-	file.close
-	
-	return data
+ 		
+		file.close
+		
+		return data
+
+	end
+ 
 end
 
-def match(fileName)
-
-	data = readFile(fileName)
-	
+# MAIN
+if __FILE__ == $0
+	lexer = Lexer.new
+	filename = ARGV[0]
+	lexer.readFile(filename)
 end
-
-readFile("entrada.txt")
-
-
