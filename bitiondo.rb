@@ -59,12 +59,35 @@ class Lexer
 			false: /\Afalse\b/,
 			
 			# Characters Chain
+			charchain: /\A"(\\.|[^\\"\n])*"/,
 			
 			# Simbols:
-			plus: /\A\+\b/, 
-			minus: /\A\-\b/, 
-			mult: /\A\*\b/, 
-			div: /\A\/\b/,
+			plus: /\A\+/, 
+			minus: /\A\-/, 
+			mult: /\A\*/, 
+			div: /\A\//,
+			mod: /\A\%/,
+			transform: /\A\@/,
+			andbool: /\A\&\&/,
+			orbool: /\A\|\|/,
+			notbool: /\A\!/,
+			lessthan: /\A\</,
+			greaterthan: /\A\>/,
+			lessthaneq: /\A\<\=/,
+			greaterthaneq: /\A\>\=/,
+			equal: /\A\=/,
+			notequal: /\A\!\=/,
+			notbits: /\A\~/,
+			andbits: /\A\&/,
+			orbits: /\A\|/,	
+			exclusive: /\A\^/,
+			rightshift: /\A>>/,
+			leftshift: /\A<< /,
+			left: /\A\[/,
+			right: /\A\]/,
+			bitrepres: /\A\$/,
+			semicolon: /\A\;/,
+			
 
 			# Data Type:
 			int: /\Aint\b/,
@@ -74,6 +97,7 @@ class Lexer
 
 			# Identifiers:
 			identifier: /\A[A-Za-z][A-Za-z0-9\_]*(?:\[[0-9]+\])?$/
+			identifier: /\A[A-Za-z]\w*(?:\[\d+\])?$/
 
 			# Character Unexpected
 			ignore: /\A#.+|\s+/,
