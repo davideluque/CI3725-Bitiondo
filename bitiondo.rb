@@ -16,7 +16,7 @@
 class Lexer
 
 	# Attributes
-	attr_reader :filename
+	attr_accessor :filename
 	attr_reader :data
 	attr_reader :tokensdict
 	attr_accessor :Tokens
@@ -30,8 +30,8 @@ class Lexer
 	def initialize(filename)
 		@filename = filename
 		@tokens = []
-		@line = 1
-		@column = 1
+		@line = 0
+		@column = 0
 
 		@tokensdict = {
 			ignore: /\A#.+|\s+/,
@@ -41,8 +41,9 @@ class Lexer
 			false: /\Afalse\b/,
 			bits: /\Abits\b/,
 			plus: /\A\+/, #FIX
-			minus: /\A\+/, #FIX
+			minus: /\A-/, #FIX
 			mult: /\A\*/, #FIX
+
 			# Construir expresiones regulares para detectar operadores
 			bitsexpression: /\A0b[0-1]+/,
 			beginbit: /\Abegin\b/,
@@ -87,8 +88,13 @@ class Lexer
 		# ordenar el arreglo de tokens <- mas bonito y en base a precedencia
 		# el arreglo de tokens falta por completar
 		data.each_line do |line|
+
+			@line = @line + 1
+
 			tokensdict.each do |k,v|
+			
 				if (v.match(line))
+					puts "el match es "
 					puts line
 					puts k
 				else
