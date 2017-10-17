@@ -17,9 +17,10 @@ class Lexer
 
 	# Attributes
 	attr_accessor :filename
+	attr_accessor :tokens
 	attr_reader :data
 	attr_reader :tokensdict
-	attr_accessor :Tokens
+	attr_reader :ignore
 
 	# Methods
 	# def initialize
@@ -30,8 +31,9 @@ class Lexer
 	def initialize(filename)
 		@filename = filename
 		@tokens = []
-		@line = 0
+		@lineno = 0
 		@column = 0
+		@ignore = /\A#.*|\A\s+/
 
 		@tokensdict = {
 			# Numbers:
@@ -73,10 +75,7 @@ class Lexer
 			bitsexpression: /\A0b[0-1]+/,
 
 			# Identifiers:
-			identifier: /\A[A-Za-z][A-Za-z0-9\_]*(?:\[[0-9]+\])?$/
-
-			# Character Unexpected
-			ignore: /\A#.+|\s+/
+			identifier: /\A[A-Za-z][A-Za-z0-9\_]*/
 
 		}
 
@@ -94,28 +93,52 @@ class Lexer
 
 	def tokenizer
 
-		# Usar el contador de las columnas para ir eliminando cosas que se van encontrando de la línea
-		# Colocar condicionales para cuando se encuentren cosas que ignorar (si no son cosas que ignorar
 		# despues de verificar su correctitud u incorrectitud hay que gurdarlas)
 		# ordenar el arreglo de tokens <- mas bonito y en base a precedencia
 		# el arreglo de tokens falta por completar
 		data.each_line do |line|
 
-			@line = @line + 1
+			@lineno = @lineno + 1
+			@column = 1
 
-			tokensdict.each do |k,v|
-			
-				if (v.match(line))
-					puts "el match es "
-					puts line
-					puts k
+			print "Linea ", @lineno, "\n"
+	
+			while line.length > 0
+				
+				if (line =~ @ignore)
+					puts "Consegui algo para ignorar"
+					puts @line
+					puts $&
+					@column = @column + $&.length
+					line = line[$&.length..line.length]
+					next
+
 				else
-					puts "no match"
-				end
-			end
-		
-		end
+					
+					puts "Puede ser un error lexico o un token importante"
 
+					tokensdict.each do |key, value|
+						
+						puts "Comienza la iteracion por el diccionario"
+						puts key, value
+
+						if (line =~ value)
+							puts "Match con palabra buena jejeje..."
+							puts $&
+							tokens.push([$&, @line, @column])
+							@column = @column + $&.length
+							line = line[$&.length..line.length]
+							break
+						end
+					
+					end
+				
+				end
+		
+			end
+			puts "Cambio de linea"
+		end
+	
 	end
 
 end
