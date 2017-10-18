@@ -13,6 +13,38 @@
 
 =end
 
+class Token
+
+	attr_accessor :value, :type, :locationinfo, :is_correct
+
+	def initialize(type, value=nil, line=0, column=0)
+		@type = type
+		@value = value
+		@locationinfo = {
+			line: line,
+			column: column
+		}
+		@is_correct = true
+	end
+
+	def to_s
+  
+  	if @is_correct
+	  
+	  	str = "#{@value} at line #{@line}, column #{@column}"
+	  	if (@value)
+	  		str + " with value `#{@value}`"
+	  	end
+  	
+  	else
+  		str = "Error: Se encontró un caracter inesperado en \"#{@value}\" en la Línea #{@line}, Columna #{@column}."
+  	end
+
+  end
+
+end
+
+
 class Lexer
 
 	# Attributes
@@ -87,10 +119,12 @@ class Lexer
 			leftshift: /\A<< /,
 			left: /\A\[/,
 			right: /\A\]/,
+			leftpar: /\A\(/,
+			rightpar: /\A\)/,
+			comma: /\A,/,
 			bitrepres: /\A\$/,
 			semicolon: /\A\;/,
 			
-
 			# Data Type:
 			int: /\Aint\b/,
 			bool: /\Abool\b/,
@@ -98,12 +132,8 @@ class Lexer
 			bitsexpression: /\A0b[0-1]+/,
 
 			# Identifiers:
-
 			identifier: /\A[A-Za-z][A-Za-z0-9\_]*/
 			#identifier: /\A[A-Za-z]\w*(?:\[\d+\])?$/
-
-			# Character Unexpected
-			ignore: /\A#.+|\s+/,
 
 		}
 
@@ -121,9 +151,6 @@ class Lexer
 
 	def tokenizer
 
-		# despues de verificar su correctitud u incorrectitud hay que gurdarlas)
-		# ordenar el arreglo de tokens <- mas bonito y en base a precedencia
-		# el arreglo de tokens falta por completar
 		data.each_line do |line|
 
 			@lineno = @lineno + 1
@@ -132,28 +159,21 @@ class Lexer
 			print "Linea ", @lineno, "\n"
 	
 			while line.length > 0
+
+				puts line
 				
 				if (line =~ @ignore)
-					puts "Consegui algo para ignorar"
-					puts @line
-					puts $&
 					@column = @column + $&.length
 					line = line[$&.length..line.length]
 					next
 
 				else
-					
-					puts "Puede ser un error lexico o un token importante"
 
 					tokensdict.each do |key, value|
-						
-						puts "Comienza la iteracion por el diccionario"
-						puts key, value
 
 						if (line =~ value)
-							puts "Match con palabra buena jejeje..."
-							puts $&
-							tokens.push([$&, @line, @column])
+
+							@tokens.push([$&, @line, @column])
 							@column = @column + $&.length
 							line = line[$&.length..line.length]
 							break
@@ -166,7 +186,6 @@ class Lexer
 			end
 			puts "Cambio de linea"
 		end
-	
 	end
 
 end
