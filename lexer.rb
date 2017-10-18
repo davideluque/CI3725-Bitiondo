@@ -25,7 +25,7 @@ class Token
 			line: line,
 			column: column
 		}
-		@tokenswithvalue = ["string", "integer", "identifier"]
+		@tokenswithvalue = ["string", "integer", "identifier", "bitsexpression"]
 		@is_correct = true
 	end
 
@@ -64,8 +64,11 @@ class Lexer
 		@ignore = /\A#.*|\A\s+/
 
 		@tokensdict = {
+
+			bitsexpression: /\A0b[0-1]+/,
+
 			# Numbers:
-			integer: /\A[0-9]+\b/,
+			integer: /\A[0-9]+/,
 
 			# Reserved words:
 			begin: /\Abegin\b/,
@@ -125,7 +128,6 @@ class Lexer
 			int: /\Aint\b/,
 			bool: /\Abool\b/,
 			bits: /\Abits\b/,
-			bitsexpression: /\A0b[0-1]+/,
 
 			# Identifiers:
 			identifier: /\A[A-Za-z][A-Za-z0-9\_]*/
@@ -135,6 +137,7 @@ class Lexer
 	end
 
 	def readFile
+
 		file = File.open(@filename,"r")
 		@data = file.read
  		
@@ -214,6 +217,10 @@ end
 # MAIN
 if __FILE__ == $0
 	filename = ARGV[0]
+	if !filename.include?".bto"
+		puts "El programa tiene que ser en formato .bto"
+		exit
+	end
 	lexer = Lexer.new(filename)
 	lexer.readFile
 	lexer.tokenizer
