@@ -72,7 +72,7 @@ class Lexer
 
 			# Reserved words:
 			begin: /\Abegin\b/,
-			endbit: /\Aend\b/,
+			end: /\Aend\b/,
 			ifcond: /\Aif\b/,
 			elsecond: /\Aelse\b/,
 			forcond: /\Afor\b/,
@@ -91,37 +91,43 @@ class Lexer
 			true: /\Atrue\b/,
 			false: /\Afalse\b/,
 			
-			# Characters Chain
+			# Strings:
 			string: /\A"(\\.|[^\\"\n])*"/,
 			
-			# Simbols:
-			plus: /\A\+/, 
+			# Symbols:
+
+			# Unary
+			leftbracket: /\A\[/,
+			rightbracket: /\A\]/,
+			notbool: /\A\!/,
+			notbits: /\A\~/,
+			bitrepres: /\A\$/,
+			transform: /\A\@/,
 			minus: /\A\-/, 
+
+			# Binary
 			mult: /\A\*/, 
 			div: /\A\//,
 			mod: /\A\%/,
-			transform: /\A\@/,
+			plus: /\A\+/, 
+			leftshift: /\A<</,
+			rightshift: /\A>>/,
+			lessthan: /\A\</,
+			lessthaneq: /\A\<\=/,
+			greaterthan: /\A\>/,
+			greaterthaneq: /\A\>\=/,
+			equalcompare: /\A\=\=/,
+			notequal: /\A\!\=/,
+			andbits: /\A\&/,
+			exclusive: /\A\^/,
+			orbits: /\A\|/,	
 			andbool: /\A\&\&/,
 			orbool: /\A\|\|/,
-			notbool: /\A\!/,
-			lessthan: /\A\</,
-			greaterthan: /\A\>/,
-			lessthaneq: /\A\<\=/,
-			greaterthaneq: /\A\>\=/,
+
 			assign: /\A\=/,
-			notequal: /\A\!\=/,
-			notbits: /\A\~/,
-			andbits: /\A\&/,
-			orbits: /\A\|/,	
-			exclusive: /\A\^/,
-			rightshift: /\A>>/,
-			leftshift: /\A<< /,
-			left: /\A\[/,
-			right: /\A\]/,
 			leftpar: /\A\(/,
 			rightpar: /\A\)/,
 			comma: /\A,/,
-			bitrepres: /\A\$/,
 			semicolon: /\A\;/,
 			
 			# Data Type:
@@ -131,7 +137,6 @@ class Lexer
 
 			# Identifiers:
 			identifier: /\A[A-Za-z][A-Za-z0-9\_]*/
-
 		}
 
 	end
