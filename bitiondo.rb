@@ -16,6 +16,7 @@
 class Token
 
 	attr_accessor :value, :type, :locationinfo, :is_correct
+	attr_reader :tokenswithvalue
 
 	def initialize(type, value=nil, line=0, column=0)
 		@type = type
@@ -24,55 +25,50 @@ class Token
 			line: line,
 			column: column
 		}
+		@tokenswithvalue = ["string", "integer", "identifier"]
 		@is_correct = true
 	end
 
 	def to_s
-  
+  	
   	if @is_correct
 	  
-	  	str = "#{@value} at line #{@line}, column #{@column}"
-	  	if (@value)
-	  		str + " with value `#{@value}`"
+	  	str = "#{@type} at line #{@locationinfo[:line]}, column #{@locationinfo[:column]}"
+	  	if (@tokenswithvalue.include?@type)
+	  		str = str + " with value `#{@value}`"
 	  	end
   	
   	else
-  		str = "Error: Se encontró un caracter inesperado en \"#{@value}\" en la Línea #{@line}, Columna #{@column}."
+  		str = "Error: Se encontró un caracter inesperado \"#{@value}\" en la Línea #{@locationinfo[:line]}, Columna #{@locationinfo[:column]}."
   	end
+
+  	return str
 
   end
 
 end
 
-
 class Lexer
 
 	# Attributes
-	attr_accessor :filename
-	attr_accessor :tokens
-	attr_reader :data
-	attr_reader :tokensdict
-	attr_reader :ignore
-
-	# Methods
-	# def initialize
-	# 	correcTokens = Array.new
-	# 	incorrecTokens = Array.new 
-	# end
+	attr_accessor :filename, :tokens
+	attr_reader :data, :tokensdict, :ignore 
 
 	def initialize(filename)
 		@filename = filename
 		@tokens = []
+		@incorrecttokens = []
 		@lineno = 0
 		@column = 0
+		@programIsCorrect = true
 		@ignore = /\A#.*|\A\s+/
 
 		@tokensdict = {
 			# Numbers:
-			numeric: /[0-9]+/,
+			integer: /\A[0-9]+\b/,
 
 			# Reserved words:
-			beginbit: /\Abegin\b/,
+			begin: /\Abegin\b/,
 			endbit: /\Aend\b/,
 			ifcond: /\Aif\b/,
 			elsecond: /\Aelse\b/,
@@ -93,7 +89,7 @@ class Lexer
 			false: /\Afalse\b/,
 			
 			# Characters Chain
-			charchain: /\A"(\\.|[^\\"\n])*"/,
+			string: /\A"(\\.|[^\\"\n])*"/,
 			
 			# Simbols:
 			plus: /\A\+/, 
@@ -109,7 +105,7 @@ class Lexer
 			greaterthan: /\A\>/,
 			lessthaneq: /\A\<\=/,
 			greaterthaneq: /\A\>\=/,
-			equal: /\A\=/,
+			assign: /\A\=/,
 			notequal: /\A\!\=/,
 			notbits: /\A\~/,
 			andbits: /\A\&/,
@@ -133,7 +129,6 @@ class Lexer
 
 			# Identifiers:
 			identifier: /\A[A-Za-z][A-Za-z0-9\_]*/
-			#identifier: /\A[A-Za-z]\w*(?:\[\d+\])?$/
 
 		}
 
@@ -156,13 +151,12 @@ class Lexer
 			@lineno = @lineno + 1
 			@column = 1
 
-			print "Linea ", @lineno, "\n"
-	
 			while line.length > 0
-
-				puts line
 				
+				matches = false
+
 				if (line =~ @ignore)
+					matches = true
 					@column = @column + $&.length
 					line = line[$&.length..line.length]
 					next
@@ -172,20 +166,47 @@ class Lexer
 					tokensdict.each do |key, value|
 
 						if (line =~ value)
-
-							@tokens.push([$&, @line, @column])
+							matches = true
+							tk = Token.new(key.to_s, $&, @lineno, @column)
+							@tokens.push(tk)
 							@column = @column + $&.length
 							line = line[$&.length..line.length]
 							break
+
 						end
-					
+
+					end
+						
+					if !(matches)
+						@programIsCorrect = false
+						tk = Token.new(nil, line[0], @lineno, @column)
+						tk.is_correct = false
+						@incorrecttokens.push(tk)
+						@column = @column + 1
+						line = line[1..line.length]
 					end
 				
 				end
 		
 			end
-			puts "Cambio de linea"
+				
 		end
+
+	end
+
+	def printk
+		if (@programIsCorrect)
+			tokens.each do |tk|
+	  		puts tk.to_s
+			end
+
+		else
+			@incorrecttokens.each do |tk|
+				puts tk.to_s
+			end
+		
+		end
+	
 	end
 
 end
@@ -196,4 +217,5 @@ if __FILE__ == $0
 	lexer = Lexer.new(filename)
 	lexer.readFile
 	lexer.tokenizer
+	lexer.printk
 end
