@@ -15,9 +15,16 @@
 
 class Token
 
+	# Attributes
 	attr_accessor :value, :type, :locationinfo, :is_correct
 	attr_reader :tokenswithvalue
 
+	# Initialize method: initializes tokens atributtes.
+	# Parameters:
+	# - type: token name, it refers to key dictionary.
+	# - value: it refers to some tokens (string, interger, identifier, bitsexpression) take.
+	# - line: where the token is.
+	# - column: where the token is.
 	def initialize(type, value=nil, line=0, column=0)
 		@type = type
 		@value = value
@@ -29,6 +36,7 @@ class Token
 		@is_correct = true
 	end
 
+	# to_s method: for each token generates its string for be printed.
 	def to_s
   	
   	if @is_correct
@@ -54,6 +62,14 @@ class Lexer
 	attr_accessor :filename, :tokens
 	attr_reader :data, :tokensdict, :ignore 
 
+	# Initialize method: initializes elements like:
+	# - tokens: stores corrects tokens.
+	# - incorrecttokens: stores incorrects tokens.
+	# - line: counter for lines.
+	# - column: counter for columns.
+	# - ignore: regular expression, it will used to ignore tokens.
+	# Parameters:
+	# - filename: name file that will be opened.
 	def initialize(filename)
 		@filename = filename
 		@tokens = []
@@ -141,6 +157,7 @@ class Lexer
 
 	end
 
+	# Read File method: reads text file.
 	def readFile
 
 		file = File.open(@filename,"r")
@@ -152,8 +169,10 @@ class Lexer
 
 	end
 
+	# Tokenizer method: principal method that does lexer method.
 	def tokenizer
 
+		# irates through file lines
 		data.each_line do |line|
 
 			@lineno = @lineno + 1
@@ -163,6 +182,7 @@ class Lexer
 				
 				matches = false
 
+				# compares if the token read has to be ignored
 				if (line =~ @ignore)
 					matches = true
 					@column = @column + $&.length
@@ -170,12 +190,15 @@ class Lexer
 					next
 
 				else
-
+					# iterates through the token dictionary 
+					# value has regular expressions
 					tokensdict.each do |key, value|
 
+						# compares for which regular expression will do match
 						if (line =~ value)
 							matches = true
 							tk = Token.new(key.to_s, $&, @lineno, @column)
+							# adds to correct token list
 							@tokens.push(tk)
 							@column = @column + $&.length
 							line = line[$&.length..line.length]
@@ -184,11 +207,13 @@ class Lexer
 						end
 
 					end
-						
+					
+					# if the token didn't do match with anyone regular expression is an error	
 					if !(matches)
 						@programIsCorrect = false
 						tk = Token.new(nil, line[0], @lineno, @column)
 						tk.is_correct = false
+						# adds to incorrect token list
 						@incorrecttokens.push(tk)
 						@column = @column + 1
 						line = line[1..line.length]
@@ -202,6 +227,7 @@ class Lexer
 
 	end
 
+	# Printk method: prints the tokens saved at correct and incorrect list.
 	def printk
 		if (@programIsCorrect)
 			tokens.each do |tk|
@@ -219,15 +245,3 @@ class Lexer
 
 end
 
-# MAIN
-if __FILE__ == $0
-	filename = ARGV[0]
-	if !filename.include?".bto"
-		puts "El programa tiene que ser en formato .bto"
-		exit
-	end
-	lexer = Lexer.new(filename)
-	lexer.readFile
-	lexer.tokenizer
-	lexer.printk
-end
