@@ -17,7 +17,7 @@ Nota: Para ejecutar el archivo, el dueño (quien lo descarga) debe tener permiso
 
 ```
 chmod u+x bitiondo
-
+```
 
 Añadir sudo al inicio del comando si hay problemas de permisos.
 
