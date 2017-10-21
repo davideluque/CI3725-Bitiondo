@@ -8,16 +8,18 @@ Fabiola Mercedes Martinez Perez 1310838 <13-10838@usb.ve>
 
 EJECUCION
 ----------------------------------------------------------------------------------------------------
-$ ./bitiondo fileName.bto
 
-Nota: Para ejecutar el archivo el dueño (quien lo descarga) debe tener permisos de ejecución. Esto se 
-logra fácilmente ejecutando el siguiente comando en el terminal (estando en la ruta del proyecto):
+```
+$ ./bitiondo fileName.bto
+```
+
+Nota: Para ejecutar el archivo, el dueño (quien lo descarga) debe tener permisos de ejecución. Esto se logra fácilmente ejecutando el siguiente comando en el terminal (estando en la ruta del proyecto):
 
 ```
 chmod u+x bitiondo
-```
 
-Añadir sudo al inicio del comando si se tienen problemas de permisos
+
+Añadir sudo al inicio del comando si hay problemas de permisos.
 
 DECISIONES DE IMPLEMENTACION 
 ----------------------------------------------------------------------------------------------------
@@ -54,7 +56,7 @@ lista. Al mismo tiempo, se van contando las lineas y columnas correspondientes.
 - printk: se encarga de recorrer las listas de tokens correctos e incorrectos y mostrarlos en la 
 salida.
 
-Para finalizar, el main del programa se encuntra en el archivo bitiondo.
+Para finalizar, el main del programa se encuentra en el archivo bitiondo.
 
 ESTADO ACTUAL DEL PROYECTO
 ----------------------------------------------------------------------------------------------------
