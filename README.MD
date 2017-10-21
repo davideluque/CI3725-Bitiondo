@@ -8,7 +8,7 @@ Fabiola Mercedes Martinez Perez 1310838 <13-10838@usb.ve>
 
 EJECUCION
 ----------------------------------------------------------------------------------------------------
-$ /.bitiondo fileName.bto
+$ ./bitiondo fileName.bto
 
 Nota: Para ejecutar el archivo el dueño (quien lo descarga) debe tener permisos de ejecución. Esto se 
 logra fácilmente ejecutando el siguiente comando en el terminal (estando en la ruta del proyecto):
