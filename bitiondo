@@ -1,0 +1,49 @@
+#! /usr/bin/ruby
+
+require_relative 'lexer.rb'
+
+=begin
+	Universidad Simon Bolivar
+	CI3715: Traductores e Interpretadores
+
+	@title Bitiondo
+
+	@author David Cabeza 13-10191
+	@author Fabiola Martinez 13-10838	
+
+	@description 
+
+=end
+
+def main
+
+	ARGV[0] =~ /\w+\.bto\b/
+
+	if $&.nil?; 
+		puts "El archivo debe tener la extensión .bto"; 
+		return; 
+	end
+	
+	# Create a new instance of a lexer with the given file
+	lexer = Lexer.new(ARGV[0])
+
+	# Try to read file and save his data.
+	begin
+		lexer.readFile
+	rescue
+		puts "No se pudo leer el archivo."
+		return
+	end
+
+	# Do tokens and save corrects and incorrect tokens.
+	lexer.tokenizer
+
+	# Print the information about the found tokens
+	lexer.printk
+
+end
+
+# MAIN
+if __FILE__ == $0
+	main
+end

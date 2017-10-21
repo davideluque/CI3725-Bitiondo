@@ -89,17 +89,17 @@ class Lexer
 			# Reserved words:
 			begin: /\Abegin\b/,
 			end: /\Aend\b/,
-			ifcond: /\Aif\b/,
-			elsecond: /\Aelse\b/,
-			forcond: /\Afor\b/,
+			if: /\Aif\b/,
+			else: /\Aelse\b/,
+			for: /\Afor\b/,
 			forbits: /\Aforbits\b/,
 			as: /\Aas\b/,
 			from: /\Afrom\b/,
 			going: /\Agoing\b/,
 			higher: /\Ahigher\b/,
 			lower: /\Alower\b/,
-			whilecond: /\Awhile\b/,
-			docond: /\Ado\b/,
+			while: /\Awhile\b/,
+			do: /\Ado\b/,
 			repeat: /\Arepeat\b/,
 			input: /\Ainput\b/,
 			output: /\Aoutput\b/,
@@ -115,9 +115,8 @@ class Lexer
 			# Unary
 			leftbracket: /\A\[/,
 			rightbracket: /\A\]/,
-			notbool: /\A\!/,
 			notbits: /\A\~/,
-			bitrepres: /\A\$/,
+			bitrepresent: /\A\$/,
 			transform: /\A\@/,
 			minus: /\A\-/, 
 
@@ -128,17 +127,23 @@ class Lexer
 			plus: /\A\+/, 
 			leftshift: /\A<</,
 			rightshift: /\A>>/,
-			lessthan: /\A\</,
+
 			lessthaneq: /\A\<\=/,
-			greaterthan: /\A\>/,
 			greaterthaneq: /\A\>\=/,
+			lessthan: /\A\</,
+			greaterthan: /\A\>/,
 			equalcompare: /\A\=\=/,
+
 			notequal: /\A\!\=/,
+			not: /\A\!/,
+
+			and: /\A\&\&/,
 			andbits: /\A\&/,
+
 			exclusive: /\A\^/,
+
+			or: /\A\|\|/,
 			orbits: /\A\|/,	
-			andbool: /\A\&\&/,
-			orbool: /\A\|\|/,
 
 			assign: /\A\=/,
 			leftpar: /\A\(/,
