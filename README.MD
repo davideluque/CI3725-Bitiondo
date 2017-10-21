@@ -10,7 +10,7 @@ EJECUCION
 ----------------------------------------------------------------------------------------------------
 
 ```
-$ ./bitiondo fileName.bto
+$ ./bitiondo filename.bto
 ```
 
 Nota: Para ejecutar el archivo, el dueño (quien lo descarga) debe tener permisos de ejecución. Esto se logra fácilmente ejecutando el siguiente comando en el terminal (estando en la ruta del proyecto):
@@ -21,8 +21,20 @@ chmod u+x bitiondo
 
 Añadir sudo al inicio del comando si hay problemas de permisos.
 
+Nota 2: Para correr el archivo bitiondo sin tener que usar el comando ruby, se requiere tener instalado ruby en la ruta /usr/bin/ruby, de otra manera, el proyecto se debe correr de la siguiente manera:
+
+```
+$ ruby bitiondo filename.bto
+```
+
+Donde "filename" hace referencia al nombre del archivo en formato .bto que se quiere ejecutar.
+Si el archivo es un formato distinto a .bto, el programa mostrará un mensaje y terminara su ejecución.
+
 DECISIONES DE IMPLEMENTACION 
 ----------------------------------------------------------------------------------------------------
+
+El proyecto se implementó utilizando el lenguaje de programación Ruby en su versión 2.3.
+Para reconocer los tokens, se usaron expresiones regulares. 
 
 En el archivo lexer.rb, se crearon dos clases:
 
