@@ -16,8 +16,7 @@
 class AST
 
 	def print_ast
-
-	be		
+			
 	end
 
 end
