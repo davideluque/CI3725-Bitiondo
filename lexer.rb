@@ -78,6 +78,7 @@ class Lexer
 		@column = 0
 		@programIsCorrect = true
 		@ignore = /\A#.*|\A\s+/
+		@cur_token = 0;
 
 		@tokensdict = {
 
@@ -113,8 +114,8 @@ class Lexer
 			# Symbols:
 
 			# Unary
-			leftbracket: /\A\[/,
-			rightbracket: /\A\]/,
+			'[': /\A\[/,
+			']': /\A\]/,
 			notbits: /\A\~/,
 			bitrepresent: /\A\$/,
 			transform: /\A\@/,
@@ -247,6 +248,19 @@ class Lexer
 		end
 	
 	end
+
+	# Checks whether there are any tokens left
+	def has_next_token
+		return @cur_token < @tokens.length;
+	end;
+
+	# Returns next token
+	def next_token
+		token = @tokens[@cur_token];
+		@cur_token = @cur_token + 1;
+		return token;
+
+	end;
 
 end
 

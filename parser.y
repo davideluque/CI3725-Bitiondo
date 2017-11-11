@@ -1,176 +1,167 @@
 #!/usr/bin/env ruby
 
-=begin
-	Universidad Simon Bolivar
-	CI3715: Traductores e Interpretadores
+# Universidad Simon Bolivar
+# CI3715: Traductores e Interpretadores
+#
+# Gramática libre de contexto para Retina
+#
+# author David Cabeza 13-10191
+# author Fabiola Martinez 13-10838	
+#
+# description Análisis sintáctico y árbol sintáctico abstracto
 
-	@title Gramática libre de contexto para Retina
-
-	@author David Cabeza 13-10191
-	@author Fabiola Martinez 13-10838	
-
-	@description Análisis sintáctico y árbol sintáctico abstracto
-
-=end
-
-class Parser:
+class Parser
 
 	# Precedence for tokens in Bitiondo
-	prechigh
-		left MULT DIV 
-	preclow
+  prechigh
+    right '['
+    left ']'
+    right '$' '@' '!' '~' UMINUS
+    left '*' '/' '%'
+    left '+' '-'
+    left '<<' '>>'
+    nonassoc '<' '<=' '>' '>='
+    left '==' '!='
+    left '&'
+    left '^'
+    left '|'
+    left '&&'
+    left '||'
+  preclow
 
 	# Valid token list in Bitiondo
-	token BITSEXPR INTEGER BEGIN END IF ELSE FOR FORBITS AS 
-				FROM GOING HIGHER LOWER WHILE DO REPEAT INPUT
-				OUTPUT OUTPUTLN TRUE FALSE STRING LEFTBR RIGHTBR
-				NOTBITS BITREPR TRANSFORM MINUS MULT DIV MOD PLUS
-				LEFTSHFT RIGHTSHFT LTEOP GTEOP LTOP GTOP ECOP NOTEQOP
-				NOTOP AND ANDBITS EXCL OR ORBITS ASSIGNOP LPARENTH
-				RPARENTH COMMA SEMICOLON INT BOOL BITS IDENTIFIER
-				STRING
+	token '[' ']' '!' '~' '$' '@' UMINUS '*' '/' '%' '+' '-' '<<' '>>' '<' 
+		  	'<=' '>' '>=' '==' '!=' '&' '^' '|' '&&' '||' '=' '(' ')' ',' 'bitexpr' 
+		  	'integer' 'begin' 'end' 'if' 'else' 'for' 'forbits' 'as' 'from' 'going' 
+		  	'higher' 'lower' 'while' 'do' 'repeat' 'input' 'output' 'outputln' 'true' 
+		  	'false' 'string' ';' 'identifier' 'bool' 'int' 'bits'
 
 	# Definition of context-free grammar admitted by Bitiondo
 	rule
 
 		# Initial rule. General structure of bitiondo
 		S
-		: BEGIN main END {result = S_node.new(val[1])}
+		: BLOCK {result = S_node.new(val[1])}
 		;
 
-		main
-		: declarations reproducer {result = Main_node.new(val[0], val[1])}
-		| reproducer							{result = Main_node.new(nil, val[0])}
+		DECLARATIONS
+		: DECLARATIONS DECLARATION {result = [val[0]]}
+		| DECLARATION
 		;
 
-		declarations
-		: declaration declarations {result = [val[0]]}
-		| declaration
+		DECLARATION
+		: TYPE 'identifier' ';'
+		| TYPE ASSIGNATION
+		| TYPE BITSDECLARATION 
 		;
 
-		declaration
-		: tipo IDENTIFIER SEMICOLON
-		| tipo assignation
-		| bitsdeclaration 
+		BITSDECLARATION
+		: TYPE 'identifier' '[' EXPRESSION ']' ';'
+		| TYPE 'identifier' '[' EXPRESSION ']' '=' 'bitexpr' ';'
 		;
 
-		bitsdeclaration
-		: BITS IDENTIFIER LEFTBR INTEGER RIGHTBR SEMICOLON
-		| BITS IDENTIFIER LEFTBR INTEGER RIGHTBR ASSIGNOP BITSEXPR SEMICOLON
+		TYPE
+		: 'int'
+		| 'bool'
+		| 'bits'
 		;
 
-		tipo
-		: INT
-		| BOOL
+		INSTRUCTIONS
+		: INSTRUCTIONS INSTRUCTION
+		| INSTRUCTION
 		;
 
-		reproducer
-		: instruction reproducer
-		|
+		INSTRUCTION
+		: BLOCK
+		| ASSIGNATION
+		| INPUT
+		| OUT
+		| CONDITIONAL
+		| FOR
+		| FORBITS
+		| WHILE
 		;
 
-		instruction
-		: block
-		| assignation
-		| input
-		| out
-		| conditional
-		| for
-		| forbits
-		| while
-		|
+		BLOCK
+		: 'begin' DECLARATIONS INSTRUCTIONS 'end'
+		| 'begin' DECLARATIONS 'end'
+		| 'begin' INSTRUCTIONS 'end'
+		| 'begin' 'end' {puts val[0]}
 		;
 
-		block
-		: BEGIN main END
-		|
+		ASSIGNATION
+		: 'identifier' '=' EXPRESSION ';'
+		| 'identifier' '[' EXPRESSION ']' '=' EXPRESSION ';'
 		;
 
-		assignation
-		: IDENTIFIER ASSIGNOP expr SEMICOLON
-		;
-
-		input
-		: IDENTIFIER SEMICOLON
+		INPUT
+		: 'input' 'identifier' ';'
 		;	
 
-		out
-		: output SEMICOLON
-		| outputln SEMICOLON
+		OUT
+		: 'output' EXPRESSIONS ';'
+		| 'outputln' EXPRESSIONS ';'
 		;
 
-		output
-		: multiexpr 
+		EXPRESSIONS
+		: EXPRESSIONS ',' EXPRESSION
+		| EXPRESSION
 		;
 
-		multiexpr
-		: expr COMMA multiexpr | expr
+		CONDITIONAL
+		: 'if' '(' EXPRESSION ')' INSTRUCTION
+		| 'if' '(' EXPRESSION ')' INSTRUCTION 'else' INSTRUCTION
 		;
 
-		outputln
-		: multiexpr
+		FOR
+		: 'for' '(' ASSIGNATION EXPRESSION ';' EXPRESSION ')' INSTRUCTION
 		;
 
-		conditional
-		: IF LPARENTH expr RPARENTH insdec
-		| IF LPARENTH expr RPARENTH insdec ELSE insdec
+		FORBITS
+		: 'forbits' EXPRESSION 'as' 'identifier' 'from' EXPRESSION 'going' DIRECTION INSTRUCTION
 		;
 
-		insdec
-		: instruction
-		| declaration
+		DIRECTION
+		: 'higher'
+		| 'lower'
 		;
 
-		for
-		: FOR LPARENTH assignation expr SEMICOLON INTEGER RPARENTH insdec
+		WHILE
+		: 'repeat' INSTRUCTION 'while' '(' EXPRESSION ')' 'do' INSTRUCTION
+		| 'while' '(' EXPRESSION ')' 'do' INSTRUCTION
+		| 'repeat' INSTRUCTION 'while' '(' EXPRESSION ')'
 		;
 
-		forbits
-		: FORBITS expr AS IDENTIFIER FROM INTEGER GOING direction insdec
-		;
-
-		direction
-		: HIGHER
-		| LOWER
-		;
-
-		while
-		: REPEAT insdec WHILE LPARENTH expr RPARENTH DO insdec
-		| WHILE LPARENTH expr RPARENTH DO insdec
-		| REPEAT insdec WHILE LPARENTH expr RPARENTH
-		;
-
-		expr
-		: expr MULT expr 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		: expr DIV expr 			{result = Arith_bin_expr_node.new(val[0], val[2], 'INTEGER DIVISION', val[1])}
-		: expr MOD expr 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MODULUS', val[1])}
-		: expr PLUS expr 			{result = Arith_bin_expr_node.new(val[0], val[2], 'PLUS', val[1])}
-		: expr MINUS expr 		{result = Arith_bin_expr_node.new(val[0], val[2], 'SUBSTRACTION', val[1])}
-		: expr LEFTSHFT expr 	{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		: expr RIGHTSHFT expr {result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		: expr LTOP expr 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		: expr LTEOP expr 		{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		: expr GTOP expr 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		: expr GTEOP expr 		{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		: expr ECOP expr 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		: expr NOTEQOP expr 	{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		: expr ANDBITS expr 	{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		: expr EXCL expr 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		: expr ORBITS expr 		{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		: expr AND expr 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		: expr OR expr 				{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		: expr MULT expr 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		: NOTBOOL expr
-		: NOTBITS expr
-		: BITREPR expr
-		: TRANSFORM expr
-		: MINUS expr =UMINUS
-		: IDENTIFIER
-		: INTEGER
-		: BITSEXPR
-		: TRUE
-		: FALSE
-		: STRING
+		EXPRESSION
+		: EXPRESSION '*' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
+		| EXPRESSION '/' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'INTEGER DIVISION', val[1])}
+		| EXPRESSION '%' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MODULUS', val[1])}
+		| EXPRESSION '+' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'PLUS', val[1])}
+		| EXPRESSION '-' EXPRESSION 		{result = Arith_bin_expr_node.new(val[0], val[2], 'SUBSTRACTION', val[1])}
+		| EXPRESSION '<<' EXPRESSION 	{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
+		| EXPRESSION '>>' EXPRESSION {result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
+		| EXPRESSION '<' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
+		| EXPRESSION '<=' EXPRESSION 		{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
+		| EXPRESSION '>' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
+		| EXPRESSION '>=' EXPRESSION 		{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
+		| EXPRESSION '==' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
+		| EXPRESSION '!=' EXPRESSION 	{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
+		| EXPRESSION '&' EXPRESSION 	{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
+		| EXPRESSION '^' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
+		| EXPRESSION '|' EXPRESSION 		{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
+		| EXPRESSION '&&' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
+		| EXPRESSION '||' EXPRESSION 				{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
+		| '!' EXPRESSION
+		| '~' EXPRESSION
+		| '$' EXPRESSION
+		| '@' EXPRESSION
+		| '-' EXPRESSION =UMINUS
+		| 'identifier'
+		| 'integer'
+		| 'bitexpr'
+		| 'true'
+		| 'false'
+		| 'string'
 		;
 
 end
@@ -196,13 +187,22 @@ end
 ---- inner
 
 def initialize(lexer)
-	@lexer = lexer
+    @lexer = lexer
 end
 
 def on_error(id, token, stack)
-	raise SyntacticError
+    raise SyntacticError::new(token)
 end
 
+def next_token
+    if @lexer.has_next_token then
+        token = @lexer.next_token;
+        return [token.type,token]
+    else
+        return nil
+    end
+end
 
-# def next_token
-# 	if @lexer.
+def parse
+    do_parse
+end

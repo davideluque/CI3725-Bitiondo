@@ -1,6 +1,6 @@
 #! /usr/bin/ruby
 
-require_relative 'lexer.rb'
+require_relative 'parser.rb'
 
 =begin
 	Universidad Simon Bolivar
@@ -39,7 +39,23 @@ def main
 	lexer.tokenizer
 
 	# Print the information about the found tokens
-	lexer.printk
+	#lexer.printk
+
+	# Creates parser for the given file in case parse has parsed
+	# successfully or prints unexpected token otherwise
+	begin
+		parser = Parser.new lexer
+		ast = parser.parse
+		# Print AST
+		#if flags.include? "-a" then
+		#	ast.print_ast()
+		#	return
+	#	end
+	#rescue SyntacticError => e
+	#	puts e
+	#	return
+	end
+
 
 end
 

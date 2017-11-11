@@ -14,15 +14,13 @@
 =end
 
 class AST
-
-	def print_ast
-			
+	def funcion
+		puts hola
 	end
-
 end
 
 
-class S_node:
+class S_node
 
 	attr_accessor :main
 
@@ -38,7 +36,7 @@ class S_node:
 
 end
 
-class Main_node:
+class Main_node
 
 	def initialize declarations, reproducer:
 		@decl = declarations
@@ -58,12 +56,10 @@ class Main_node:
 end
 
 
-class Declarations:
+class Declarations
 
 	def print_ast ident:
-
-		CICLO POR CADA TOKEN DECLARADO
-
-		puts
+		puts "hola"
+	end
 
 end
