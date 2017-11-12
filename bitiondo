@@ -8,10 +8,10 @@
 #
 # Lenguaje de programación implementado en el lenguaje ruby
 # para operaciones en conjuntos de bits.
+#
 # 
 # David Cabeza 13-10191 <13-10191@usb.ve>
 # Fabiola Martínez 13-10838 <13-10838@usb.ve>
-#
 ############################################################
 
 # Import dependencies
@@ -65,20 +65,19 @@ def main
 		return
 	end
 
-	# Do syntactical  analysis of the file
+	# Do syntactical analysis of the file
 	# On syntax errors, prints unexpected token
 	begin
 		parser = Parser.new(lexer)
 		ast = parser.parse
 		#if flags.include? "-a" then
-			ast.print
+			ast.printAST
 			#	return
 		#	end
 	rescue SyntacticError => e
 		puts e
 		return
 	end
-
 
 end
 

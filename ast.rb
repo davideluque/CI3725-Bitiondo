@@ -1,65 +1,135 @@
-#!/usr/bin/env ruby
+#! /usr/bin/ruby
 
-=begin
-	Universidad Simon Bolivar
-	CI3715: Traductores e Interpretadores
+############################################################
+# Universidad Simón Bolívar
+# CI3175: Traductores e interpretadores
+# 
+# Bitiondo
+#
+# Análisis sintáctico y árbol sintáctico abstracto
+# 
+# David Cabeza 13-10191 <13-10191@usb.ve>
+# Fabiola Martínez 13-10838 <13-10838@usb.ve>
+############################################################
 
-	@title Gramática libre de contexto para Retina
+class StatementsAndInstructionsBlockNode
 
-	@author David Cabeza 13-10191
-	@author Fabiola Martinez 13-10838	
+	attr_reader :ident
 
-	@description Análisis sintáctico y árbol sintáctico abstracto
+	def initialize(statements, instructions)
+		@statements = statements
+		@instructions = instructions
+		@ident = "  "
+	end
 
-=end
-
-class AST
-	def funcion
-		puts hola
+	def printAST(ident = "  ")
+		puts "BEGIN"
+		@statements.printAST(@ident)
+		@instructions.printAST(@ident)
+		puts "END"
+		return
 	end
 end
 
+class StatementsBlockNode
 
-class S_node
+	attr_reader :ident
 
-	attr_accessor :main
-
-	def initialize main
-		@main = main
+	def initialize(statements)
+		@statements = statements
+		@ident = "  "
 	end
 
-	def print_ast
+	def printAST(ident = "  ")
 		puts "BEGIN"
-		@main.print_ast("    ")
+		puts "Hola soy declaraciones como estas"
 		puts "END"
 	end
-
 end
 
-class Main_node
+class InstructionsBlockNode
 
-	def initialize declarations, reproducer:
-		@decl = declarations
-		@repr = reproducer
+	attr_reader :ident
+
+	def initialize(instructions)
+		@instructions = instructions
+		@ident = "  "
 	end
 
-	def print_ast ident
+	def printAST(ident = "  ")
+		puts "BEGIN"
+		puts "Hola soy instrucciones como estas"
+		puts "END"
+	end
+end
 
-		if @decl
-		@decl.print_ast(ident + "    ")
+class EmptyBlockNode
+
+	attr_reader :ident
+
+	def initialize
+		@ident = "  "
+	end
+
+	def printAST(ident = "  ")
+		puts "BEGIN"
+		puts "END"
+	end
+end
+
+class StatementsNode
+
+	attr_reader :ident
+
+	def initialize(statementsNode, statementNode)
+		@statementsNode = statementsNode
+		@statementNode = statementNode
+		@ident = "  "
+	end
+
+	def printAST(ident = "  ")
+		@statementsNode.printAST(ident+@ident)
+		@statementNode.printAST(ident+@ident)
+	end
+end
+
+class StatementNode
+
+	attr_reader :ident
+
+	def initialize(type, identifier, exp1 =nil, exp2 =nil)
+		@type = type
+		@identifier = identifier
+		@exp1 = exp1
+		@exp2 = exp2
+	end
+
+	def printAST(ident)
+		puts "DECLARE"
+		puts "#{@ident} type: #{@type.type}"
+		puts "#{@ident} variable: #{@identifier.value}"
+		if exp1 then
+			puts "#{@ident} size:"
+			puts "#{@ident} const_#{@exp1.type}:  #{@exp1.value}"
 		end
-
-		@repr.print_ast(ident + "    ")
-
+		if exp2 then
+			puts "#{@ident} value:"
+			puts "#{@ident} const_#{@exp2.type}: #{@exp2.value}"
+		end
 	end
-
 end
 
+class TypeNode
+	def initialize (type)
+		@type = type
+	end
+end
 
-class Declarations
+class ConstExpressionNode
 
-	def print_ast ident:
-		puts "hola"
+	def initialize(value, type)
+		@value = value
+		@type = type
 	end
 
 end

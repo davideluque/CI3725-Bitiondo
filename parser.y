@@ -1,14 +1,16 @@
-#!/usr/bin/env ruby
+#! /usr/bin/ruby
 
-# Universidad Simon Bolivar
-# CI3715: Traductores e Interpretadores
+############################################################
+# Universidad Simón Bolívar
+# CI3175: Traductores e interpretadores
+# 
+# Bitiondo
 #
-# Gramática libre de contexto para Retina
-#
-# author David Cabeza 13-10191
-# author Fabiola Martinez 13-10838	
-#
-# description Análisis sintáctico y árbol sintáctico abstracto
+# Gramática libre de contexto para Bitiondo
+# 
+# David Cabeza 13-10191 <13-10191@usb.ve>
+# Fabiola Martínez 13-10838 <13-10838@usb.ve>
+############################################################
 
 class Parser
 
@@ -36,139 +38,139 @@ class Parser
 		  	'higher' 'lower' 'while' 'do' 'repeat' 'input' 'output' 'outputln' 'true' 
 		  	'false' 'string' ';' 'identifier' 'bool' 'int' 'bits'
 
+	start S
+
 	# Definition of context-free grammar admitted by Bitiondo
 	rule
 
 		# Initial rule. General structure of bitiondo
 		S
-		: BLOCK {result = S_node.new(val[1])}
+		: BLOCK {result = val[0]}
 		;
 
-		DECLARATIONS
-		: DECLARATIONS DECLARATION {result = [val[0]]}
-		| DECLARATION
+		# Blocks in bitiondo are defined by begin and end keywords
+		BLOCK
+		: 'begin' STATEMENTS INSTRUCTIONS 'end' {result = StatementsAndInstructionsBlockNode.new(val[1], val[2])}
+		| 'begin' STATEMENTS 'end' 							{result = StatementsBlockNode.new(val[1])}
+		| 'begin' INSTRUCTIONS 'end' 						{result = InstructionsBlockNode.new(val[1])}
+		| 'begin' 'end' 												{result = EmptyBlockNode.new}
 		;
 
-		DECLARATION
-		: TYPE 'identifier' ';'
-		| TYPE ASSIGNATION
-		| TYPE BITSDECLARATION 
+		# Statements rule. Bitiondo can have several statements or one
+		STATEMENTS
+		: STATEMENTS STATEMENT {result = StatementsNode.new(val[0], val[1])}
+		| STATEMENT 						{result = val[0]}
 		;
 
-		BITSDECLARATION
-		: TYPE 'identifier' '[' EXPRESSION ']' ';'
-		| TYPE 'identifier' '[' EXPRESSION ']' '=' 'bitexpr' ';'
+		STATEMENT
+		: TYPE 'identifier' ';' 																	{result = StatementNode.new(val[0], val[1])}
+		| TYPE 'identifier' '=' EXPRESSION ';'  									{result = StatementNode.new(val[0], val[1], val[3])}
+		| TYPE 'identifier' '[' EXPRESSION ']' ';' 								{result = StatementNode.new(val[0], val[1], val[3])} 
+		| TYPE 'identifier' '[' EXPRESSION ']' '=' EXPRESSION ';' {result = StatementNode.new(val[0], val[1], val[3], val[5])}
 		;
 
 		TYPE
-		: 'int'
-		| 'bool'
-		| 'bits'
+		: 'int' {result = val[0]}
+		| 'bool' {result = val[0]}
+		| 'bits' {result = val[0]}
 		;
 
 		INSTRUCTIONS
-		: INSTRUCTIONS INSTRUCTION
-		| INSTRUCTION
+		: INSTRUCTIONS INSTRUCTION {puts val}
+		| INSTRUCTION {puts val}
 		;
 
 		INSTRUCTION
-		: BLOCK
-		| ASSIGNATION
-		| INPUT
-		| OUT
-		| CONDITIONAL
-		| FOR
-		| FORBITS
-		| WHILE
-		;
-
-		BLOCK
-		: 'begin' DECLARATIONS INSTRUCTIONS 'end'
-		| 'begin' DECLARATIONS 'end'
-		| 'begin' INSTRUCTIONS 'end'
-		| 'begin' 'end' {puts val[0]}
+		: BLOCK {result = val[0]}
+		| ASSIGNATION {result = val[0]}
+		| INPUT {result = val[0]}
+		| OUT {result = val[0]}
+		| CONDITIONAL {result = val[0]}
+		| FOR {result = val[0]}
+		| FORBITS {result = val[0]}
+		| WHILE {result = val[0]}
 		;
 
 		ASSIGNATION
-		: 'identifier' '=' EXPRESSION ';'
-		| 'identifier' '[' EXPRESSION ']' '=' EXPRESSION ';'
+		: 'identifier' '=' EXPRESSION ';' {result = AssignationNode.new(val[0], val[2])}
+		| 'identifier' '[' EXPRESSION ']' '=' EXPRESSION ';' {result = AssignationNode.new(val[0], val[2], val[5])}
 		;
 
 		INPUT
-		: 'input' 'identifier' ';'
+		: 'input' 'identifier' ';' {result = InputNode.new(val[1])}
 		;	
 
 		OUT
-		: 'output' EXPRESSIONS ';'
-		| 'outputln' EXPRESSIONS ';'
+		: 'output' EXPRESSIONS ';' {result = OutputNode.new(val[0], val[1])}
+		| 'outputln' EXPRESSIONS ';' {result = OutputNode.new(val[0], val[1])}
 		;
 
 		EXPRESSIONS
-		: EXPRESSIONS ',' EXPRESSION
-		| EXPRESSION
+		: EXPRESSIONS ',' EXPRESSION {puts val}
+		| EXPRESSION {puts val}
 		;
 
 		CONDITIONAL
-		: 'if' '(' EXPRESSION ')' INSTRUCTION
-		| 'if' '(' EXPRESSION ')' INSTRUCTION 'else' INSTRUCTION
+		: 'if' '(' EXPRESSION ')' INSTRUCTION {result = IfNode.new(val[2], val[4])}
+		| 'if' '(' EXPRESSION ')' INSTRUCTION 'else' INSTRUCTION {result = IfNode.new(val[2], val[4], val[6])}
 		;
 
 		FOR
-		: 'for' '(' ASSIGNATION EXPRESSION ';' EXPRESSION ')' INSTRUCTION
+		: 'for' '(' ASSIGNATION EXPRESSION ';' EXPRESSION ')' INSTRUCTION {result = ForNode.new(val[2], val[3], val[5], val[7])}
 		;
 
 		FORBITS
-		: 'forbits' EXPRESSION 'as' 'identifier' 'from' EXPRESSION 'going' DIRECTION INSTRUCTION
+		: 'forbits' EXPRESSION 'as' 'identifier' 'from' EXPRESSION 'going' DIRECTION INSTRUCTION {result = ForbitsNode.new(val[1], val[3], val[5], val[7], val[8])}
 		;
 
 		DIRECTION
-		: 'higher'
-		| 'lower'
+		: 'higher' {result = DirectionNode.new(val[0])}
+		| 'lower' {result = DirectionNode.new(val[0])}
 		;
 
 		WHILE
-		: 'repeat' INSTRUCTION 'while' '(' EXPRESSION ')' 'do' INSTRUCTION
-		| 'while' '(' EXPRESSION ')' 'do' INSTRUCTION
-		| 'repeat' INSTRUCTION 'while' '(' EXPRESSION ')'
+		: 'repeat' INSTRUCTION 'while' '(' EXPRESSION ')' 'do' INSTRUCTION {result = WhileNode.new(val[0], val[1], val[4], val[7])}
+		| 'while' '(' EXPRESSION ')' 'do' INSTRUCTION {result = WhileNode.new(val[0], val[2], val[5])}
+		| 'repeat' INSTRUCTION 'while' '(' EXPRESSION ')' {result = WhileNode.new(val[0], val[1], val[4])}
 		;
 
 		EXPRESSION
-		: EXPRESSION '*' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		| EXPRESSION '/' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'INTEGER DIVISION', val[1])}
-		| EXPRESSION '%' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MODULUS', val[1])}
-		| EXPRESSION '+' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'PLUS', val[1])}
-		| EXPRESSION '-' EXPRESSION 		{result = Arith_bin_expr_node.new(val[0], val[2], 'SUBSTRACTION', val[1])}
-		| EXPRESSION '<<' EXPRESSION 	{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		| EXPRESSION '>>' EXPRESSION {result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		| EXPRESSION '<' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		| EXPRESSION '<=' EXPRESSION 		{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		| EXPRESSION '>' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		| EXPRESSION '>=' EXPRESSION 		{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		| EXPRESSION '==' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		| EXPRESSION '!=' EXPRESSION 	{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		| EXPRESSION '&' EXPRESSION 	{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		| EXPRESSION '^' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		| EXPRESSION '|' EXPRESSION 		{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		| EXPRESSION '&&' EXPRESSION 			{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		| EXPRESSION '||' EXPRESSION 				{result = Arith_bin_expr_node.new(val[0], val[2], 'MULTIPLICATION', val[1])}
-		| '!' EXPRESSION
-		| '~' EXPRESSION
-		| '$' EXPRESSION
-		| '@' EXPRESSION
-		| '-' EXPRESSION =UMINUS
-		| 'identifier'
-		| 'integer'
-		| 'bitexpr'
-		| 'true'
-		| 'false'
-		| 'string'
+		: EXPRESSION '*' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
+		| EXPRESSION '/' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'DIVISION')}
+		| EXPRESSION '%' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'MODULUS')}
+		| EXPRESSION '+' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'PLUS')}
+		| EXPRESSION '-' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'MINUS')}
+		| EXPRESSION '<<' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'LEFTSHIFT')}
+		| EXPRESSION '>>' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'RIGHTSHIFT')}
+		| EXPRESSION '<' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'LESSTHAN')}
+		| EXPRESSION '<=' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'LESSTHANEQUAL')}
+		| EXPRESSION '>' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'GREATERTHAN')}
+		| EXPRESSION '>=' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'GREATERTHANEQUAL')}
+		| EXPRESSION '==' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'ISEQUAL')}
+		| EXPRESSION '!=' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'ISDIFFERENT')}
+		| EXPRESSION '&' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'BOOLEANAND')}
+		| EXPRESSION '^' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
+		| EXPRESSION '|' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'BOOLEAN OR')}
+		| EXPRESSION '&&' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
+		| EXPRESSION '||' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
+		| '!' EXPRESSION 							{result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
+		| '~' EXPRESSION 							{result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
+		| '$' EXPRESSION 							{result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
+		| '@' EXPRESSION 							{result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
+		| '-' EXPRESSION =UMINUS 			{result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
+		| 'identifier' 								{result = ConstExpressionNode.new(val[0], "identifier")}
+		| 'integer' 									{result = ConstExpressionNode.new(val[0], "int")}
+		| 'bitexpr' 									{result = ConstExpressionNode.new(val[0], "bits")}
+		| 'true' 											{result = ConstExpressionNode.new(val[0], "true")}
+		| 'false' 										{result = ConstExpressionNode.new(val[0], "false")}
+		| 'string' 										{result = ConstExpressionNode.new(val[0], "string")}
+		| 'identifier' '[' EXPRESSION ']' {puts val}
 		;
 
 end
 
 ---- header
 
-require_relative "lexer.rb"
 require_relative "ast.rb"
 
 class SyntacticError < RuntimeError
@@ -178,8 +180,7 @@ class SyntacticError < RuntimeError
 	end
 
 	def to_s
-		puts "ERROR: unexpected token {$} at line {$}"
-
+		"ERROR: unexpected token '#{@token.type}' at line #{@token.locationinfo[:line]}, column #{@token.locationinfo[:column]}"
 	end
 
 end
