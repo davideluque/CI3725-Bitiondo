@@ -878,14 +878,14 @@ module_eval(<<'.,.,', 'parser.y', 114)
 
 module_eval(<<'.,.,', 'parser.y', 118)
   def _reduce_34(val, _values, result)
-    result = ForNode.new(val[2], val[3], val[5], val[7])
+    result = ForLoopNode.new(val[2], val[3], val[5], val[7])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 122)
   def _reduce_35(val, _values, result)
-    result = ForbitsNode.new(val[1], val[3], val[5], val[7], val[8])
+    result = ForbitsLoopNode.new(val[1], val[3], val[5], val[7], val[8])
     result
   end
 .,.,
@@ -906,21 +906,21 @@ module_eval(<<'.,.,', 'parser.y', 127)
 
 module_eval(<<'.,.,', 'parser.y', 131)
   def _reduce_38(val, _values, result)
-    result = WhileNode.new(val[0], val[1], val[4], val[7])
+    result = RepeatWhileLoopNode.new(val[1], val[4], val[7])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 132)
   def _reduce_39(val, _values, result)
-    result = WhileNode.new(val[0], val[2], val[5])
+    result = WhileLoopNode.new(val[2], val[5])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 133)
   def _reduce_40(val, _values, result)
-    result = WhileNode.new(val[0], val[1], val[4])
+    result = RepeatWhileLoopNode.new(val[1], val[4])
     result
   end
 .,.,
@@ -1088,7 +1088,7 @@ module_eval(<<'.,.,', 'parser.y', 159)
 
 module_eval(<<'.,.,', 'parser.y', 160)
   def _reduce_64(val, _values, result)
-    result = ConstExpressionNode.new(val[0], "identifier")
+    result = ConstExpressionNode.new(val[0], "variable")
     result
   end
 .,.,

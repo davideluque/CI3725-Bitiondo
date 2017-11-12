@@ -215,8 +215,8 @@ end
 
 class ConditionalNode
 
-	def initialize(exp, ins1, ins2=nil)
-		@exp = exp
+	def initialize(expression, ins1, ins2=nil)
+		@expression = expression
 		@ins1 = ins1
 		@ins2 = ins2
 	end
@@ -224,13 +224,121 @@ class ConditionalNode
 	def printAST(ident)
 		puts "#{ident}CONDITIONAL"
 		puts "#{ident+ident}CONDITION:"
-		@exp.printAST(ident)
+		@expression.printAST(ident)
 		puts "#{ident+ident}INSTRUCTION:"
 		@ins1.printAST(ident)
 		if @ins2
 			puts "#{ident+ident}OTHERWISE:"
 			@ins2.printAST(ident)
 		end
+	end
+end
+
+class ForLoopNode
+
+	def initialize(assignation, exp1, exp2, instruction)
+		@assignation = assignation
+		@exp1 = exp1
+		@exp2 = exp2
+		@instruction = instruction
+	end
+
+	def printAST(ident)
+		puts "#{ident}FOR LOOP"
+		puts "#{ident+ident}INITIALIZATION:"
+		@assignation.printAST(ident)
+		puts "#{ident+ident}CONDITION:"
+		@exp1.printAST(ident)
+		puts "#{ident+ident}VARIABLE UPDATE:"
+		@exp2.printAST(ident)
+		puts "#{ident+ident}INSTRUCTION:"
+		@instruction.printAST(ident)
+	end
+end
+
+class ForLoopNode
+
+	def initialize(assignation, exp1, exp2, instruction)
+		@assignation = assignation
+		@exp1 = exp1
+		@exp2 = exp2
+		@instruction = instruction
+	end
+
+	def printAST(ident)
+		puts "#{ident}FOR LOOP"
+		puts "#{ident+ident}INITIALIZATION:"
+		@assignation.printAST(ident)
+		puts "#{ident+ident}CONDITION:"
+		@exp1.printAST(ident)
+		puts "#{ident+ident}VARIABLE UPDATE:"
+		@exp2.printAST(ident)
+		puts "#{ident+ident}INSTRUCTION:"
+		@instruction.printAST(ident)
+	end
+end
+
+class ForbitsLoopNode
+
+	def initialize(exp1, identifier, exp2, direction, instruction)
+		@exp1 = exp1
+		@identifier = identifier
+		@exp2 = exp2
+		@direction = direction
+		@instruction = instruction
+	end
+
+	def printAST(ident)
+		puts "#{ident}FORBITS LOOP"
+		puts "#{ident+ident}BITS EXPRESSION:"
+		@exp1.printAST(ident)
+		puts "#{ident+ident}IDENTIFIER:"
+		puts "#{ident+ident+ident}value: #{@identifier.value}"
+		puts "#{ident+ident}FROM:"
+		@exp2.printAST(ident)
+		puts "#{ident+ident}GOING:"
+		puts "#{ident+ident+ident}value: #{@direction.value}"
+		puts "#{ident+ident}INSTRUCTION:"
+		@instruction.printAST(ident)
+	end
+end
+
+class RepeatWhileLoopNode
+
+	def initialize(ins1, expression, ins2 =nil)
+		@expression = expression
+		@ins1 = ins1
+		@ins2 = ins2
+	end
+
+	def printAST(ident)
+		puts "#{ident}REPEAT LOOP"
+		puts "#{ident+ident}INSTRUCTION:"
+		@ins1.printAST(ident)
+		puts "#{ident+ident}WHILE:"
+		@expression.printAST(ident)
+		if @ins2 then
+			puts "#{ident+ident}DO:"
+			@ins2.printAST(ident)			
+		end
+
+	end
+
+end
+
+class WhileLoopNode
+
+	def initialize(expression, instruction)
+		@expression = expression
+		@instruction = instruction
+	end
+
+	def printAST(ident)
+		puts "#{ident}WHILE LOOP"
+		puts "#{ident+ident}WHILE:"
+		@expression.printAST(ident)
+		puts "#{ident+ident}DO:"
+		@instruction.printAST(ident)
 	end
 
 end
@@ -245,9 +353,6 @@ class ConstExpressionNode
 	end
 
 	def printAST(ident)
-		if @type == "identifier"
-			@type = "variable"
-		end
 		puts "#{ident+ident+ident}#{@type}: #{@value.value}"
 	end
 

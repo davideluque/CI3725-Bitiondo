@@ -116,11 +116,11 @@ class Parser
 		;
 
 		FOR
-		: 'for' '(' ASSIGNATION EXPRESSION ';' EXPRESSION ')' INSTRUCTION {result = ForNode.new(val[2], val[3], val[5], val[7])}
+		: 'for' '(' ASSIGNATION EXPRESSION ';' EXPRESSION ')' INSTRUCTION {result = ForLoopNode.new(val[2], val[3], val[5], val[7])}
 		;
 
 		FORBITS
-		: 'forbits' EXPRESSION 'as' 'identifier' 'from' EXPRESSION 'going' DIRECTION INSTRUCTION {result = ForbitsNode.new(val[1], val[3], val[5], val[7], val[8])}
+		: 'forbits' EXPRESSION 'as' 'identifier' 'from' EXPRESSION 'going' DIRECTION INSTRUCTION {result = ForbitsLoopNode.new(val[1], val[3], val[5], val[7], val[8])}
 		;
 
 		DIRECTION
@@ -129,9 +129,9 @@ class Parser
 		;
 
 		WHILE
-		: 'repeat' INSTRUCTION 'while' '(' EXPRESSION ')' 'do' INSTRUCTION {result = WhileNode.new(val[0], val[1], val[4], val[7])}
-		| 'while' '(' EXPRESSION ')' 'do' INSTRUCTION {result = WhileNode.new(val[0], val[2], val[5])}
-		| 'repeat' INSTRUCTION 'while' '(' EXPRESSION ')' {result = WhileNode.new(val[0], val[1], val[4])}
+		: 'repeat' INSTRUCTION 'while' '(' EXPRESSION ')' 'do' INSTRUCTION {result = RepeatWhileLoopNode.new(val[1], val[4], val[7])}
+		| 'while' '(' EXPRESSION ')' 'do' INSTRUCTION {result = WhileLoopNode.new(val[2], val[5])}
+		| 'repeat' INSTRUCTION 'while' '(' EXPRESSION ')' {result = RepeatWhileLoopNode.new(val[1], val[4])}
 		;
 
 		EXPRESSION
@@ -158,7 +158,7 @@ class Parser
 		| '$' EXPRESSION 							{result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
 		| '@' EXPRESSION 							{result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
 		| '-' EXPRESSION =UMINUS 			{result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
-		| 'identifier' 								{result = ConstExpressionNode.new(val[0], "identifier")}
+		| 'identifier' 								{result = ConstExpressionNode.new(val[0], "variable")}
 		| 'integer' 									{result = ConstExpressionNode.new(val[0], "int")}
 		| 'bitexpr' 									{result = ConstExpressionNode.new(val[0], "bits")}
 		| 'true' 											{result = ConstExpressionNode.new(val[0], "const")}
