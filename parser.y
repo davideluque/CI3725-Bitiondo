@@ -64,9 +64,9 @@ class Parser
 
 		STATEMENT
 		: TYPE 'identifier' ';' 																	{result = StatementNode.new(val[0], val[1])}
-		| TYPE 'identifier' '=' EXPRESSION ';'  									{result = StatementNode.new(val[0], val[1], val[3])}
+		| TYPE 'identifier' '=' EXPRESSION ';'  									{result = StatementNode.new(val[0], val[1], val[3], 'nosize')}
 		| TYPE 'identifier' '[' EXPRESSION ']' ';' 								{result = StatementNode.new(val[0], val[1], val[3])} 
-		| TYPE 'identifier' '[' EXPRESSION ']' '=' EXPRESSION ';' {result = StatementNode.new(val[0], val[1], val[3], val[5])}
+		| TYPE 'identifier' '[' EXPRESSION ']' '=' EXPRESSION ';' {result = StatementNode.new(val[0], val[1], val[3], val[6])}
 		;
 
 		TYPE
@@ -76,8 +76,8 @@ class Parser
 		;
 
 		INSTRUCTIONS
-		: INSTRUCTIONS INSTRUCTION {puts val}
-		| INSTRUCTION {puts val}
+		: INSTRUCTIONS INSTRUCTION {result = InstructionsNode.new(val[0], val[1])}
+		| INSTRUCTION {result = val[0]}
 		;
 
 		INSTRUCTION
@@ -101,13 +101,13 @@ class Parser
 		;	
 
 		OUT
-		: 'output' EXPRESSIONS ';' {result = OutputNode.new(val[0], val[1])}
-		| 'outputln' EXPRESSIONS ';' {result = OutputNode.new(val[0], val[1])}
+		: 'output' EXPRESSIONS ';' {result = OutputNode.new('OUTPUT', val[1])}
+		| 'outputln' EXPRESSIONS ';' {result = OutputNode.new('OUTPUTLN', val[1])}
 		;
 
 		EXPRESSIONS
-		: EXPRESSIONS ',' EXPRESSION {puts val}
-		| EXPRESSION {puts val}
+		: EXPRESSIONS ',' EXPRESSION {result = ExpressionsNode.new(val[0], val[2])}
+		| EXPRESSION {result = val[0]}
 		;
 
 		CONDITIONAL
@@ -161,8 +161,8 @@ class Parser
 		| 'identifier' 								{result = ConstExpressionNode.new(val[0], "identifier")}
 		| 'integer' 									{result = ConstExpressionNode.new(val[0], "int")}
 		| 'bitexpr' 									{result = ConstExpressionNode.new(val[0], "bits")}
-		| 'true' 											{result = ConstExpressionNode.new(val[0], "true")}
-		| 'false' 										{result = ConstExpressionNode.new(val[0], "false")}
+		| 'true' 											{result = ConstExpressionNode.new(val[0], "const")}
+		| 'false' 										{result = ConstExpressionNode.new(val[0], "const")}
 		| 'string' 										{result = ConstExpressionNode.new(val[0], "string")}
 		| 'identifier' '[' EXPRESSION ']' {puts val}
 		;

@@ -703,7 +703,7 @@ module_eval(<<'.,.,', 'parser.y', 65)
 
 module_eval(<<'.,.,', 'parser.y', 66)
   def _reduce_9(val, _values, result)
-    result = StatementNode.new(val[0], val[1], val[3])
+    result = StatementNode.new(val[0], val[1], val[3], 'nosize')
     result
   end
 .,.,
@@ -717,7 +717,7 @@ module_eval(<<'.,.,', 'parser.y', 67)
 
 module_eval(<<'.,.,', 'parser.y', 68)
   def _reduce_11(val, _values, result)
-    result = StatementNode.new(val[0], val[1], val[3], val[5])
+    result = StatementNode.new(val[0], val[1], val[3], val[6])
     result
   end
 .,.,
@@ -745,14 +745,14 @@ module_eval(<<'.,.,', 'parser.y', 74)
 
 module_eval(<<'.,.,', 'parser.y', 78)
   def _reduce_15(val, _values, result)
-    puts val
+    result = InstructionsNode.new(val[0], val[1])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 79)
   def _reduce_16(val, _values, result)
-    puts val
+    result = val[0]
     result
   end
 .,.,
@@ -836,28 +836,28 @@ module_eval(<<'.,.,', 'parser.y', 99)
 
 module_eval(<<'.,.,', 'parser.y', 103)
   def _reduce_28(val, _values, result)
-    result = OutputNode.new(val[0], val[1])
+    result = OutputNode.new('OUTPUT', val[1])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 104)
   def _reduce_29(val, _values, result)
-    result = OutputNode.new(val[0], val[1])
+    result = OutputNode.new('OUTPUTLN', val[1])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 108)
   def _reduce_30(val, _values, result)
-    puts val
+    result = ExpressionsNode.new(val[0], val[2])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 109)
   def _reduce_31(val, _values, result)
-    puts val
+    result = val[0]
     result
   end
 .,.,
