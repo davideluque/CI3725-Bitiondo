@@ -357,3 +357,54 @@ class ConstExpressionNode
 	end
 
 end
+
+class BinExpressionNode
+
+	def initialize(leftoperand, rightoperand, operator)
+		@leftoperand = leftoperand
+		@rightoperand = rightoperand
+		@operator = operator
+	end
+
+	def printAST(ident)
+		puts "#{ident}BIN_EXPRESSION:"
+		puts "#{ident+ident}operator: #{@operator}"
+		puts "#{ident+ident}left operand:"
+		@leftoperand.printAST(ident)
+		puts "#{ident+ident}right operand:"
+		@rightoperand.printAST(ident)
+	end
+
+end
+
+class UnaryExpressionNode
+
+	def initialize(operand, operator)
+		@operand = operand
+		@operator = operator
+	end
+
+	def printAST(ident)
+		puts "#{ident}UNARY_EXPRESSION:"
+		puts "#{ident+ident}operand:"
+		@operand.printAST(ident)
+		puts "#{ident+ident+ident}operator: #{@operator}"
+	end
+
+end
+
+class AccessNode
+
+	def initialize(identifier, expression)
+		@identifier = identifier
+		@expression = expression
+	end
+
+	def printAST(ident)
+		puts "#{ident}ACCESSOR"
+		puts "#{ident+ident}variable: #{@identifier.value}"
+		puts "#{ident+ident}position:"
+		@expression.printAST(ident)
+	end
+
+end

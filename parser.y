@@ -147,24 +147,24 @@ class Parser
 		| EXPRESSION '>' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'GREATERTHAN')}
 		| EXPRESSION '>=' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'GREATERTHANEQUAL')}
 		| EXPRESSION '==' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'ISEQUAL')}
-		| EXPRESSION '!=' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'ISDIFFERENT')}
-		| EXPRESSION '&' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'BOOLEANAND')}
-		| EXPRESSION '^' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
-		| EXPRESSION '|' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'BOOLEAN OR')}
-		| EXPRESSION '&&' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
-		| EXPRESSION '||' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
-		| '!' EXPRESSION 							{result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
-		| '~' EXPRESSION 							{result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
-		| '$' EXPRESSION 							{result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
-		| '@' EXPRESSION 							{result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
-		| '-' EXPRESSION =UMINUS 			{result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
+		| EXPRESSION '!=' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'ISNOTEQUAL')}
+		| EXPRESSION '&' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'ANDBITS')}
+		| EXPRESSION '^' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'EXCLUSIVE')}
+		| EXPRESSION '|' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'ORBITS')}
+		| EXPRESSION '&&' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'ANDBOOL')}
+		| EXPRESSION '||' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'ORBOOL')}
+		| '!' EXPRESSION 							{result = UnaryExpressionNode.new(val[1], 'NOT')}
+		| '~' EXPRESSION 							{result = UnaryExpressionNode.new(val[1], 'NOTBITS')}
+		| '$' EXPRESSION 							{result = UnaryExpressionNode.new(val[1], 'BITREPRESENTATION')}
+		| '@' EXPRESSION 							{result = UnaryExpressionNode.new(val[1], 'TRANSFORM')}
+		| '-' EXPRESSION =UMINUS 			{result = UnaryExpressionNode.new(val[1], 'UMINUS')}
 		| 'identifier' 								{result = ConstExpressionNode.new(val[0], "variable")}
 		| 'integer' 									{result = ConstExpressionNode.new(val[0], "int")}
 		| 'bitexpr' 									{result = ConstExpressionNode.new(val[0], "bits")}
 		| 'true' 											{result = ConstExpressionNode.new(val[0], "const")}
 		| 'false' 										{result = ConstExpressionNode.new(val[0], "const")}
 		| 'string' 										{result = ConstExpressionNode.new(val[0], "string")}
-		| 'identifier' '[' EXPRESSION ']' {puts val}
+		| 'identifier' '[' EXPRESSION ']' {result = AccessNode.new(val[0], val[2])}
 		;
 
 end

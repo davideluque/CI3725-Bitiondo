@@ -1011,77 +1011,77 @@ module_eval(<<'.,.,', 'parser.y', 148)
 
 module_eval(<<'.,.,', 'parser.y', 149)
   def _reduce_53(val, _values, result)
-    result = BinExpressionNode.new(val[0], val[2], 'ISDIFFERENT')
+    result = BinExpressionNode.new(val[0], val[2], 'ISNOTEQUAL')
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 150)
   def _reduce_54(val, _values, result)
-    result = BinExpressionNode.new(val[0], val[2], 'BOOLEANAND')
+    result = BinExpressionNode.new(val[0], val[2], 'ANDBITS')
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 151)
   def _reduce_55(val, _values, result)
-    result = BinExpressionNode.new(val[0], val[2], 'MULTIPLICATION')
+    result = BinExpressionNode.new(val[0], val[2], 'EXCLUSIVE')
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 152)
   def _reduce_56(val, _values, result)
-    result = BinExpressionNode.new(val[0], val[2], 'BOOLEAN OR')
+    result = BinExpressionNode.new(val[0], val[2], 'ORBITS')
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 153)
   def _reduce_57(val, _values, result)
-    result = BinExpressionNode.new(val[0], val[2], 'MULTIPLICATION')
+    result = BinExpressionNode.new(val[0], val[2], 'ANDBOOL')
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 154)
   def _reduce_58(val, _values, result)
-    result = BinExpressionNode.new(val[0], val[2], 'MULTIPLICATION')
+    result = BinExpressionNode.new(val[0], val[2], 'ORBOOL')
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 155)
   def _reduce_59(val, _values, result)
-    result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')
+    result = UnaryExpressionNode.new(val[1], 'NOT')
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 156)
   def _reduce_60(val, _values, result)
-    result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')
+    result = UnaryExpressionNode.new(val[1], 'NOTBITS')
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 157)
   def _reduce_61(val, _values, result)
-    result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')
+    result = UnaryExpressionNode.new(val[1], 'BITREPRESENTATION')
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 158)
   def _reduce_62(val, _values, result)
-    result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')
+    result = UnaryExpressionNode.new(val[1], 'TRANSFORM')
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 159)
   def _reduce_63(val, _values, result)
-    result = UnaryExpressionNode.new(val[0], val[2], 'MULTIPLICATION')
+    result = UnaryExpressionNode.new(val[1], 'UMINUS')
     result
   end
 .,.,
@@ -1130,7 +1130,7 @@ module_eval(<<'.,.,', 'parser.y', 165)
 
 module_eval(<<'.,.,', 'parser.y', 166)
   def _reduce_70(val, _values, result)
-    puts val
+    result = AccessNode.new(val[0], val[2])
     result
   end
 .,.,
