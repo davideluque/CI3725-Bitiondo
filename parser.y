@@ -145,7 +145,7 @@ class Parser
 		WHILE
 		: 'repeat' INSTRUCTION 'while' '(' EXPRESSION ')' 'do' INSTRUCTION {result = RepeatWhileLoopNode.new(val[1], val[4], val[7])}
 		| 'while' '(' EXPRESSION ')' 'do' INSTRUCTION {result = WhileLoopNode.new(val[2], val[5])}
-		| 'repeat' INSTRUCTION 'while' '(' EXPRESSION ')' {result = RepeatWhileLoopNode.new(val[1], val[4])}
+		| 'repeat' INSTRUCTION 'while' '(' EXPRESSION ')' ';' {result = RepeatWhileLoopNode.new(val[1], val[4])} 
 		;
 
 		# Expression rule. Defines all allowed expressions in bitiondo
