@@ -14,18 +14,15 @@
 
 class StatementsAndInstructionsBlockNode
 
-	attr_reader :ident
-
 	def initialize(statements, instructions)
 		@statements = statements
 		@instructions = instructions
-		@ident = "  "
 	end
 
 	def printAST(ident = "")
 		puts "BEGIN"
-		@statements.printAST(@ident)
-		@instructions.printAST(@ident)
+		@statements.printAST(ident + "  ")
+		@instructions.printAST(ident + "  ")
 		puts "END"
 		return
 	end
@@ -33,11 +30,8 @@ end
 
 class StatementsBlockNode
 
-	attr_reader :ident
-
 	def initialize(statements)
 		@statements = statements
-		@ident = "  "
 	end
 
 	def printAST(ident = "")
@@ -49,16 +43,13 @@ end
 
 class InstructionsBlockNode
 
-	attr_reader :ident
-
 	def initialize(instructions)
 		@instructions = instructions
-		@ident = "  "
 	end
 
 	def printAST(ident = "")
 		puts "BEGIN"
-		@instructions.printAST(ident)
+		@instructions.printAST(ident+"  ")
 		puts "END"
 	end
 end
@@ -71,7 +62,7 @@ class EmptyBlockNode
 		@ident = "  "
 	end
 
-	def printAST(ident = "")
+	def printAST(ident = "  ")
 		puts "BEGIN"
 		puts "END"
 	end
@@ -88,8 +79,8 @@ class StatementsNode
 	end
 
 	def printAST(ident)
-		@statementsNode.printAST(ident)
-		@statementNode.printAST(ident)
+		@statementsNode.printAST(ident+"  ")
+		@statementNode.printAST(ident+"  ")
 	end
 end
 
@@ -113,17 +104,17 @@ class StatementNode
 
 				if @exp2 == "nosize" then
 					puts "#{ident+ident}value:"
-					@exp1.printAST(ident)
+					@exp1.printAST(ident+"  ")
 				else
 					puts "#{ident+ident}size:"
-					@exp1.printAST(ident)
+					@exp1.printAST(ident+"  ")
 					puts "#{ident+ident}value:"
-					@exp2.printAST(ident)
+					@exp2.printAST(ident+"  ")
 				end
 			
 			else
 				puts "#{ident+ident}size:"
-				@exp1.printAST(ident)
+				@exp1.printAST(ident+"  ")
 			end
 		end
 	end
@@ -140,8 +131,8 @@ class InstructionsNode
 	end
 
 	def printAST(ident)
-		@instructionsNode.printAST(ident)
-		@instructionNode.printAST(ident)
+		@instructionsNode.printAST(ident+"  ")
+		@instructionNode.printAST(ident+"  ")
 	end
 end
 
@@ -158,12 +149,12 @@ class AssignationNode
 		puts "#{ident+ident}variable: #{@identifier.value}"
 		if !@exp2
 			puts "#{ident+ident}value:"
-			@exp1.printAST(ident)
+			@exp1.printAST(ident+"  ")
 		else
 			puts "#{ident+ident}position:"
-			@exp1.printAST(ident)
+			@exp1.printAST(ident+"  ")
 			puts "#{ident+ident}value:"
-			@exp2.printAST(ident)
+			@exp2.printAST(ident+"  ")
 		end
 	end
 end
@@ -192,7 +183,7 @@ class OutputNode
 	def printAST(ident)
 		puts "#{ident}#{@type}"
 		puts "#{ident+ident}elements:"
-		@expressions.printAST(ident)
+		@expressions.printAST(ident+"  ")
 	end
 
 end
@@ -208,8 +199,8 @@ class ExpressionsNode
 	end
 
 	def printAST(ident)
-		@expressionsNode.printAST(ident)
-		@expressionNode.printAST(ident)
+		@expressionsNode.printAST(ident+"  ")
+		@expressionNode.printAST(ident+"  ")
 	end
 end
 
@@ -224,12 +215,12 @@ class ConditionalNode
 	def printAST(ident)
 		puts "#{ident}CONDITIONAL"
 		puts "#{ident+ident}CONDITION:"
-		@expression.printAST(ident)
+		@expression.printAST(ident+"    ")
 		puts "#{ident+ident}INSTRUCTION:"
-		@ins1.printAST(ident)
+		@ins1.printAST(ident+"    ")
 		if @ins2
 			puts "#{ident+ident}OTHERWISE:"
-			@ins2.printAST(ident)
+			@ins2.printAST(ident+"    ")
 		end
 	end
 end
@@ -246,13 +237,13 @@ class ForLoopNode
 	def printAST(ident)
 		puts "#{ident}FOR LOOP"
 		puts "#{ident+ident}INITIALIZATION:"
-		@assignation.printAST(ident)
+		@assignation.printAST(ident+"  ")
 		puts "#{ident+ident}CONDITION:"
-		@exp1.printAST(ident)
+		@exp1.printAST(ident+"  ")
 		puts "#{ident+ident}VARIABLE UPDATE:"
-		@exp2.printAST(ident)
+		@exp2.printAST(ident+"  ")
 		puts "#{ident+ident}INSTRUCTION:"
-		@instruction.printAST(ident)
+		@instruction.printAST(ident+"  ")
 	end
 end
 
@@ -268,13 +259,13 @@ class ForLoopNode
 	def printAST(ident)
 		puts "#{ident}FOR LOOP"
 		puts "#{ident+ident}INITIALIZATION:"
-		@assignation.printAST(ident)
+		@assignation.printAST(ident+"  ")
 		puts "#{ident+ident}CONDITION:"
-		@exp1.printAST(ident)
+		@exp1.printAST(ident+"  ")
 		puts "#{ident+ident}VARIABLE UPDATE:"
-		@exp2.printAST(ident)
+		@exp2.printAST(ident+"  ")
 		puts "#{ident+ident}INSTRUCTION:"
-		@instruction.printAST(ident)
+		@instruction.printAST(ident+"  ")
 	end
 end
 
@@ -291,15 +282,15 @@ class ForbitsLoopNode
 	def printAST(ident)
 		puts "#{ident}FORBITS LOOP"
 		puts "#{ident+ident}BITS EXPRESSION:"
-		@exp1.printAST(ident)
+		@exp1.printAST(ident+"  ")
 		puts "#{ident+ident}IDENTIFIER:"
 		puts "#{ident+ident+ident}value: #{@identifier.value}"
 		puts "#{ident+ident}FROM:"
-		@exp2.printAST(ident)
+		@exp2.printAST(ident+"  ")
 		puts "#{ident+ident}GOING:"
 		puts "#{ident+ident+ident}value: #{@direction.value}"
 		puts "#{ident+ident}INSTRUCTION:"
-		@instruction.printAST(ident)
+		@instruction.printAST(ident+"  ")
 	end
 end
 
@@ -314,12 +305,12 @@ class RepeatWhileLoopNode
 	def printAST(ident)
 		puts "#{ident}REPEAT LOOP"
 		puts "#{ident+ident}INSTRUCTION:"
-		@ins1.printAST(ident)
+		@ins1.printAST(ident+"  ")
 		puts "#{ident+ident}WHILE:"
-		@expression.printAST(ident)
+		@expression.printAST(ident+"  ")
 		if @ins2 then
 			puts "#{ident+ident}DO:"
-			@ins2.printAST(ident)			
+			@ins2.printAST(ident+"  ")			
 		end
 
 	end
@@ -336,9 +327,9 @@ class WhileLoopNode
 	def printAST(ident)
 		puts "#{ident}WHILE LOOP"
 		puts "#{ident+ident}WHILE:"
-		@expression.printAST(ident)
+		@expression.printAST(ident+"  ")
 		puts "#{ident+ident}DO:"
-		@instruction.printAST(ident)
+		@instruction.printAST(ident+"  ")
 	end
 
 end
@@ -370,9 +361,9 @@ class BinExpressionNode
 		puts "#{ident}BIN_EXPRESSION:"
 		puts "#{ident+ident}operator: #{@operator}"
 		puts "#{ident+ident}left operand:"
-		@leftoperand.printAST(ident)
+		@leftoperand.printAST(ident+"    ")
 		puts "#{ident+ident}right operand:"
-		@rightoperand.printAST(ident)
+		@rightoperand.printAST(ident+"    ")
 	end
 
 end
@@ -387,7 +378,7 @@ class UnaryExpressionNode
 	def printAST(ident)
 		puts "#{ident}UNARY_EXPRESSION:"
 		puts "#{ident+ident}operand:"
-		@operand.printAST(ident)
+		@operand.printAST(ident+"  ")
 		puts "#{ident+ident+ident}operator: #{@operator}"
 	end
 
@@ -404,7 +395,7 @@ class AccessNode
 		puts "#{ident}ACCESSOR"
 		puts "#{ident+ident}variable: #{@identifier.value}"
 		puts "#{ident+ident}position:"
-		@expression.printAST(ident)
+		@expression.printAST(ident+"  ")
 	end
 
 end

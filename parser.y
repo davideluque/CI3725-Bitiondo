@@ -62,6 +62,7 @@ class Parser
 		| STATEMENT 						{result = val[0]}
 		;
 
+		# Statement rule. There are 4 types of statements in bitiondo
 		STATEMENT
 		: TYPE 'identifier' ';' 																	{result = StatementNode.new(val[0], val[1])}
 		| TYPE 'identifier' '=' EXPRESSION ';'  									{result = StatementNode.new(val[0], val[1], val[3], 'nosize')}
@@ -69,17 +70,20 @@ class Parser
 		| TYPE 'identifier' '[' EXPRESSION ']' '=' EXPRESSION ';' {result = StatementNode.new(val[0], val[1], val[3], val[6])}
 		;
 
+		# Type rule. Types admitted for statements
 		TYPE
 		: 'int' {result = val[0]}
 		| 'bool' {result = val[0]}
 		| 'bits' {result = val[0]}
 		;
 
+		# Instructions rules. It helps to generate several instructions
 		INSTRUCTIONS
 		: INSTRUCTIONS INSTRUCTION {result = InstructionsNode.new(val[0], val[1])}
 		| INSTRUCTION {result = val[0]}
 		;
 
+		# Instruction rule. There are 8 types of instructions in bitiondo
 		INSTRUCTION
 		: BLOCK {result = val[0]}
 		| ASSIGNATION {result = val[0]}
@@ -91,49 +95,61 @@ class Parser
 		| WHILE {result = val[0]}
 		;
 
+		# Assignation rule. Two ways to assign varibles in bitiondo
 		ASSIGNATION
 		: 'identifier' '=' EXPRESSION ';' {result = AssignationNode.new(val[0], val[2])}
 		| 'identifier' '[' EXPRESSION ']' '=' EXPRESSION ';' {result = AssignationNode.new(val[0], val[2], val[5])}
 		;
 
+		# Input rule. Defines the way of inputs in bitiondo
 		INPUT
 		: 'input' 'identifier' ';' {result = InputNode.new(val[1])}
 		;	
 
+		# Out rule. Defines the way of outputs in bitiondo
 		OUT
 		: 'output' EXPRESSIONS ';' {result = OutputNode.new('OUTPUT', val[1])}
 		| 'outputln' EXPRESSIONS ';' {result = OutputNode.new('OUTPUTLN', val[1])}
 		;
 
+		# Expressions rule. Its like the group of expressions in outputs
 		EXPRESSIONS
 		: EXPRESSIONS ',' EXPRESSION {result = ExpressionsNode.new(val[0], val[2])}
 		| EXPRESSION {result = val[0]}
 		;
 
+		# Conditional rule. Two types of conditionals in bitiondo
+		# This rule has shift/reduce problem
 		CONDITIONAL
 		: 'if' '(' EXPRESSION ')' INSTRUCTION {result = ConditionalNode.new(val[2], val[4])}
 		| 'if' '(' EXPRESSION ')' INSTRUCTION 'else' INSTRUCTION {result = ConditionalNode.new(val[2], val[4], val[6])}
 		;
 
+		# For rule. Normal for loop
 		FOR
 		: 'for' '(' ASSIGNATION EXPRESSION ';' EXPRESSION ')' INSTRUCTION {result = ForLoopNode.new(val[2], val[3], val[5], val[7])}
 		;
 
+		# Forbits rule. Way to iterate through bits
 		FORBITS
 		: 'forbits' EXPRESSION 'as' 'identifier' 'from' EXPRESSION 'going' DIRECTION INSTRUCTION {result = ForbitsLoopNode.new(val[1], val[3], val[5], val[7], val[8])}
 		;
 
+		# Direction rule. Two ways to iterate through bits: higher or lower
 		DIRECTION
 		: 'higher' {result = val[0]}
 		| 'lower' {result = val[0]}
 		;
 
+		# While rule. Three ways to do whiles in bitiondo. Already known
 		WHILE
 		: 'repeat' INSTRUCTION 'while' '(' EXPRESSION ')' 'do' INSTRUCTION {result = RepeatWhileLoopNode.new(val[1], val[4], val[7])}
 		| 'while' '(' EXPRESSION ')' 'do' INSTRUCTION {result = WhileLoopNode.new(val[2], val[5])}
 		| 'repeat' INSTRUCTION 'while' '(' EXPRESSION ')' {result = RepeatWhileLoopNode.new(val[1], val[4])}
 		;
 
+		# Expression rule. Defines all allowed expressions in bitiondo
+		# Binary, Unary and Constant expressions. One especial named "ACCESSOR"
 		EXPRESSION
 		: EXPRESSION '*' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
 		| EXPRESSION '/' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'DIVISION')}
