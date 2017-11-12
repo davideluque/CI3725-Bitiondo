@@ -864,14 +864,14 @@ module_eval(<<'.,.,', 'parser.y', 109)
 
 module_eval(<<'.,.,', 'parser.y', 113)
   def _reduce_32(val, _values, result)
-    result = IfNode.new(val[2], val[4])
+    result = ConditionalNode.new(val[2], val[4])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 114)
   def _reduce_33(val, _values, result)
-    result = IfNode.new(val[2], val[4], val[6])
+    result = ConditionalNode.new(val[2], val[4], val[6])
     result
   end
 .,.,
@@ -892,14 +892,14 @@ module_eval(<<'.,.,', 'parser.y', 122)
 
 module_eval(<<'.,.,', 'parser.y', 126)
   def _reduce_36(val, _values, result)
-    result = DirectionNode.new(val[0])
+    result = val[0]
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 127)
   def _reduce_37(val, _values, result)
-    result = DirectionNode.new(val[0])
+    result = val[0]
     result
   end
 .,.,
@@ -1109,14 +1109,14 @@ module_eval(<<'.,.,', 'parser.y', 162)
 
 module_eval(<<'.,.,', 'parser.y', 163)
   def _reduce_67(val, _values, result)
-    result = ConstExpressionNode.new(val[0], "true")
+    result = ConstExpressionNode.new(val[0], "const")
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 164)
   def _reduce_68(val, _values, result)
-    result = ConstExpressionNode.new(val[0], "false")
+    result = ConstExpressionNode.new(val[0], "const")
     result
   end
 .,.,

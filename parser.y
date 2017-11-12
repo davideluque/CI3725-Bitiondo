@@ -111,8 +111,8 @@ class Parser
 		;
 
 		CONDITIONAL
-		: 'if' '(' EXPRESSION ')' INSTRUCTION {result = IfNode.new(val[2], val[4])}
-		| 'if' '(' EXPRESSION ')' INSTRUCTION 'else' INSTRUCTION {result = IfNode.new(val[2], val[4], val[6])}
+		: 'if' '(' EXPRESSION ')' INSTRUCTION {result = ConditionalNode.new(val[2], val[4])}
+		| 'if' '(' EXPRESSION ')' INSTRUCTION 'else' INSTRUCTION {result = ConditionalNode.new(val[2], val[4], val[6])}
 		;
 
 		FOR
@@ -124,8 +124,8 @@ class Parser
 		;
 
 		DIRECTION
-		: 'higher' {result = DirectionNode.new(val[0])}
-		| 'lower' {result = DirectionNode.new(val[0])}
+		: 'higher' {result = val[0]}
+		| 'lower' {result = val[0]}
 		;
 
 		WHILE

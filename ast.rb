@@ -113,17 +113,17 @@ class StatementNode
 
 				if @exp2 == "nosize" then
 					puts "#{ident+ident}value:"
-					puts "#{ident+ident+ident}const_#{@exp1.type}: #{@exp1.value.value}"
+					@exp1.printAST(ident)
 				else
 					puts "#{ident+ident}size:"
-					puts "#{ident+ident+ident}const_#{@exp1.type}: #{@exp1.value.value}"
+					@exp1.printAST(ident)
 					puts "#{ident+ident}value:"
-					puts "#{ident+ident+ident}const_#{@exp2.type}: #{@exp2.value.value}"
+					@exp2.printAST(ident)
 				end
 			
 			else
 				puts "#{ident+ident}size:"
-				puts "#{ident+ident+ident}const_#{@exp1.type}: #{@exp1.value.value}"
+				@exp1.printAST(ident)
 			end
 		end
 	end
@@ -158,12 +158,12 @@ class AssignationNode
 		puts "#{ident+ident}variable: #{@identifier.value}"
 		if !@exp2
 			puts "#{ident+ident}value:"
-			puts "#{ident+ident+ident}const_#{@exp1.type}: #{@exp1.value.value}"
+			@exp1.printAST(ident)
 		else
 			puts "#{ident+ident}position:"
-			puts "#{ident+ident+ident}const_#{@exp1.type}: #{@exp1.value.value}"
+			@exp1.printAST(ident)
 			puts "#{ident+ident}value:"
-			puts "#{ident+ident+ident}const_#{@exp2.type}: #{@exp2.value.value}"
+			@exp2.printAST(ident)
 		end
 	end
 end
@@ -213,6 +213,27 @@ class ExpressionsNode
 	end
 end
 
+class ConditionalNode
+
+	def initialize(exp, ins1, ins2=nil)
+		@exp = exp
+		@ins1 = ins1
+		@ins2 = ins2
+	end
+
+	def printAST(ident)
+		puts "#{ident}CONDITIONAL"
+		puts "#{ident+ident}CONDITION:"
+		@exp.printAST(ident)
+		puts "#{ident+ident}INSTRUCTION:"
+		@ins1.printAST(ident)
+		if @ins2
+			puts "#{ident+ident}OTHERWISE:"
+			@ins2.printAST(ident)
+		end
+	end
+
+end
 
 class ConstExpressionNode
 
