@@ -1,6 +1,6 @@
 README
 Traductores e Interpretadores
-Etapa 1 - Analizador lexicografico
+Etapa 2 - Analizador sintáctico
 
 Autores:
 David Ernesto Cabeza Luque 1310191 <13-10191@usb.ve>
