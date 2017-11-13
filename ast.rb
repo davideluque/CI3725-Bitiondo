@@ -12,6 +12,15 @@
 # Fabiola Martínez 13-10838 <13-10838@usb.ve>
 ############################################################
 
+# The classes in this file are nodes that are instantiated by the parser file. 
+# These classes contain a "print" function which is responsible for making the 
+# appropriate printing for each node in the requested format of the syntax tree.
+
+# Each class has a meaning depending on the path it is taking. Their names 
+# indicate the meaning of each node.
+
+# For more information about the meaning of each node, see the file parser.y
+ 
 class StatementsAndInstructionsBlockNode
 
 	def initialize(statements, instructions)
