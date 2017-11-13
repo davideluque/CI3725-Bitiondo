@@ -34,6 +34,9 @@ DECISIONES DE IMPLEMENTACION
 ----------------------------------------------------------------------------------------------------
 
 El proyecto se implementó utilizando el lenguaje de programación Ruby en su versión 2.3.
+
+Etapa 1
+
 Para reconocer los tokens, se usaron expresiones regulares. 
 
 En el archivo lexer.rb, se crearon dos clases:
@@ -68,12 +71,26 @@ lista. Al mismo tiempo, se van contando las lineas y columnas correspondientes.
 - printk: se encarga de recorrer las listas de tokens correctos e incorrectos y mostrarlos en la 
 salida.
 
+Etapa 2 
+
+En el archivo parser.y contiene el diseño de la gramática libre de contexto del lenguaje bitiondo y 
+un reconocedor para la misma. Dicho archivo recibe los tokens reconocidos por el analizador lexicográfico
+y va aplicando las reglas de gramática correspondientes. Es importante mencionar que el tercer caso para
+while se colocó ';' . 
+
+Por otro lado, el archivo parser.rb es generado a partir de la gramática y es el reconocerdor encargado 
+de hacer interpretación de la parte sintáctica del lenguaje.
+
+Para imprimir el árbol sintáctico abstracto durante el reconocimiento, se crearon clases para las decla-
+raciones, cada tipo de instrucción y expresión. Además, la variable ident que se encarga de llevar el 
+control de la identación.
+
 Para finalizar, el main del programa se encuentra en el archivo bitiondo.
 
 ESTADO ACTUAL DEL PROYECTO
 ----------------------------------------------------------------------------------------------------
 El programa que se comporta como un analizador lexicografico para el lenguaje Bitiondo, cumple con 
-todas las funcionalidades requeridas para la etapa 1. 
+todas las funcionalidades requeridas para la etapa 1 y la etapa 2.
 
 
 PROBLEMAS PRESENTES
