@@ -64,9 +64,9 @@ class Parser
 
 		# Statement rule. There are 4 types of statements in bitiondo
 		STATEMENT
-		: TYPE 'identifier' ';' 																	{result = StatementNode.new(val[0], val[1])}
-		| TYPE 'identifier' '=' EXPRESSION ';'  									{result = StatementNode.new(val[0], val[1], val[3], 'nosize')}
-		| TYPE 'identifier' '[' EXPRESSION ']' ';' 								{result = StatementNode.new(val[0], val[1], val[3])} 
+		: TYPE 'identifier' ';' 																	{result = StatementNode.new(val[0], val[1], nil, nil)}
+		| TYPE 'identifier' '=' EXPRESSION ';'  									{result = StatementNode.new(val[0], val[1], nil, val[3])}
+		| TYPE 'identifier' '[' EXPRESSION ']' ';' 								{result = StatementNode.new(val[0], val[1], val[3], nil)} 
 		| TYPE 'identifier' '[' EXPRESSION ']' '=' EXPRESSION ';' {result = StatementNode.new(val[0], val[1], val[3], val[6])}
 		;
 

@@ -46,8 +46,6 @@ end
  
 class StatementsNode
 
-	attr_reader :ident
-
 	def initialize(statementsNode, statementNode)
 		@statementsNode = statementsNode
 		@statementNode = statementNode
@@ -61,38 +59,27 @@ end
 
 class StatementNode
 
-	attr_reader :ident
-
-	def initialize(type, identifier, exp1 =nil, exp2 =nil)
+	def initialize(type, identifier, size, value)
 		@type = type
 		@identifier = identifier
-		@exp1 = exp1
-		@exp2 = exp2
+		@size = size
+		@value = value
 	end
 
 	def printAST(ident)
 		puts "#{ident}DECLARE"
 		puts "#{ident+"  "}type: #{@type.type}"
 		puts "#{ident+"  "}variable: #{@identifier.value}"
-		if @exp1
-			if @exp2 then
-
-				if @exp2 == "nosize" then
-					puts "#{ident+"  "}value:"
-					@exp1.printAST(ident+"    ")
-				else
-					puts "#{ident+"  "}size:"
-					@exp1.printAST(ident+"    ")
-					puts "#{ident+"  "}value:"
-					@exp2.printAST(ident+"    ")
-				end
-			
-			else
-				puts "#{ident+"  "}size:"
-				@exp1.printAST(ident+"    ")
-			end
+		if @size
+			puts "#{ident+"  "}size:"
+			@size.printAST(ident+"    ")
+		end
+		if @value
+			puts "#{ident+"  "}value:"
+			@value.printAST(ident+"    ")
 		end
 	end
+
 end
 
 class InstructionsNode
