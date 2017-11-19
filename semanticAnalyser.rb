@@ -13,16 +13,16 @@
 # Fabiola Martínez 13-10838 <13-10838@usb.ve>
 ############################################################
 
-#require_relative "symtable.rb"
+require_relative "symtable.rb"
 
-class SemanticAnalyzer
+class SemanticAnalyser
 
 	def initialize(ast)
 		@ast = ast
-		#@symTable = SymTable.new
+		@globalSymbolTable = SymTable.new
 	end
 
-	def analyze
+	def analyse
 
 		handler(@ast)
 
@@ -33,7 +33,7 @@ class SemanticAnalyzer
 			puts ast.statements
 		end
 		if ast.instructions
-		puts ast.instructions
+			puts ast.instructions
 		end
 	end
 

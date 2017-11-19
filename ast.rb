@@ -42,6 +42,10 @@ class BlockNode
 		return
 	end
 
+	def check()
+		puts "Hola"
+	end
+
 end
  
 class StatementsNode
@@ -80,6 +84,11 @@ class StatementNode
 			puts "#{indent+"  "}value:"
 			@value.printAST(indent+"    ")
 		end
+	end
+
+	# def check()
+	# 	if @type == "int" 
+
 	end
 
 end

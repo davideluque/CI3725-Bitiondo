@@ -82,8 +82,8 @@ def main
 
 	# Create symbol table for the AST returned by the parser
 	begin
-		semanticAnalyzer = SemanticAnalyzer.new(ast)
-		symboltable = semanticAnalyzer.analyze
+		semanticAnalyser = SemanticAnalyser.new(ast)
+		symboltable = semanticAnalyser.analyse
 	end
 
 end
