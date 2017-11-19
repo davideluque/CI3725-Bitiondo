@@ -17,6 +17,7 @@
 # Import dependencies
 require_relative "lexer.rb"
 require_relative "parser.rb"
+require_relative "semanticAnalyzer.rb"
 
 def main
 
@@ -70,13 +71,19 @@ def main
 	begin
 		parser = Parser.new(lexer)
 		ast = parser.parse
-		#if flags.include? "-a" then
+		if flags.include? "-a" then
 			ast.printAST
-			#	return
-		#	end
+			return
+		end
 	rescue SyntacticError => e
 		puts e
 		return
+	end
+
+	# Create symbol table for the AST returned by the parser
+	begin
+		semanticAnalyzer = SemanticAnalyzer.new(ast)
+		symboltable = semanticAnalyzer.analyze
 	end
 
 end

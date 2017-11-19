@@ -654,28 +654,28 @@ module_eval(<<'.,.,', 'parser.y', 47)
 
 module_eval(<<'.,.,', 'parser.y', 52)
   def _reduce_2(val, _values, result)
-    result = StatementsAndInstructionsBlockNode.new(val[1], val[2])
+    result = BlockNode.new(val[1], val[2])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 53)
   def _reduce_3(val, _values, result)
-    result = StatementsBlockNode.new(val[1])
+    result = BlockNode.new(val[1], nil)
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 54)
   def _reduce_4(val, _values, result)
-    result = InstructionsBlockNode.new(val[1])
+    result = BlockNode.new(nil, val[1])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 55)
   def _reduce_5(val, _values, result)
-    result = EmptyBlockNode.new
+    result = BlockNode.new(nil, nil)
     result
   end
 .,.,

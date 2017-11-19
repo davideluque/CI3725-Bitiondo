@@ -20,63 +20,30 @@
 # indicate the meaning of each node.
 
 # For more information about the meaning of each node, see the file parser.y
- 
-class StatementsAndInstructionsBlockNode
+
+class BlockNode
+
+	attr_accessor :statements, :instructions
 
 	def initialize(statements, instructions)
 		@statements = statements
 		@instructions = instructions
 	end
 
-	def printAST(ident = "")
+	def printAST(ident="")
 		puts "#{ident}BEGIN"
-		@statements.printAST(ident + "  ")
-		@instructions.printAST(ident + "  ")
+		if @statements
+			@statements.printAST(ident+"  ")
+		end
+		if @instructions
+			@instructions.printAST(ident+"  ")
+		end
 		puts "#{ident}END"
 		return
 	end
+
 end
-
-class StatementsBlockNode
-
-	def initialize(statements)
-		@statements = statements
-	end
-
-	def printAST(ident = "")
-		puts "#{ident}BEGIN"
-		@statements.printAST(ident+"  ")
-		puts "#{ident}END"
-	end
-end
-
-class InstructionsBlockNode
-
-	def initialize(instructions)
-		@instructions = instructions
-	end
-
-	def printAST(ident = "")
-		puts "#{ident}BEGIN"
-		@instructions.printAST(ident+"  ")
-		puts "#{ident}END"
-	end
-end
-
-class EmptyBlockNode
-
-	attr_reader :ident
-
-	def initialize
-		@ident = ""
-	end
-
-	def printAST(ident = "")
-		puts "#{ident}BEGIN"
-		puts "#{ident}END"
-	end
-end
-
+ 
 class StatementsNode
 
 	attr_reader :ident

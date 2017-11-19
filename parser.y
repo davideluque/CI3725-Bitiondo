@@ -50,10 +50,10 @@ class Parser
 
 		# Blocks in bitiondo are defined by begin and end keywords
 		BLOCK
-		: 'begin' STATEMENTS INSTRUCTIONS 'end' {result = StatementsAndInstructionsBlockNode.new(val[1], val[2])}
-		| 'begin' STATEMENTS 'end' 							{result = StatementsBlockNode.new(val[1])}
-		| 'begin' INSTRUCTIONS 'end' 						{result = InstructionsBlockNode.new(val[1])}
-		| 'begin' 'end' 												{result = EmptyBlockNode.new}
+		: 'begin' STATEMENTS INSTRUCTIONS 'end' {result = BlockNode.new(val[1], val[2])}
+		| 'begin' STATEMENTS 'end' 							{result = BlockNode.new(val[1], nil)}
+		| 'begin' INSTRUCTIONS 'end' 						{result = BlockNode.new(nil, val[1])}
+		| 'begin' 'end' 												{result = BlockNode.new(nil, nil)}
 		;
 
 		# Statements rule. Bitiondo can have several statements or one
