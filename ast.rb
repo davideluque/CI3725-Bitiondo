@@ -211,28 +211,6 @@ class ForLoopNode
 	end
 end
 
-class ForLoopNode
-
-	def initialize(assignation, exp1, exp2, instruction)
-		@assignation = assignation
-		@exp1 = exp1
-		@exp2 = exp2
-		@instruction = instruction
-	end
-
-	def printAST(indent)
-		puts "#{indent}FOR LOOP"
-		puts "#{indent+"  "}INITIALIZATION:"
-		@assignation.printAST(indent+"    ")
-		puts "#{indent+"  "}CONDITION:"
-		@exp1.printAST(indent+"    ")
-		puts "#{indent+"  "}VARIABLE UPDATE:"
-		@exp2.printAST(indent+"    ")
-		puts "#{indent+"  "}INSTRUCTION:"
-		@instruction.printAST(indent+"    ")
-	end
-end
-
 class ForbitsLoopNode
 
 	def initialize(exp1, identifier, exp2, direction, instruction)
