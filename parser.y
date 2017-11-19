@@ -97,7 +97,7 @@ class Parser
 
 		# Assignation rule. Two ways to assign varibles in bitiondo
 		ASSIGNATION
-		: 'identifier' '=' EXPRESSION ';' {result = AssignationNode.new(val[0], val[2])}
+		: 'identifier' '=' EXPRESSION ';' {result = AssignationNode.new(val[0], nil, val[2])}
 		| 'identifier' '[' EXPRESSION ']' '=' EXPRESSION ';' {result = AssignationNode.new(val[0], val[2], val[5])}
 		;
 

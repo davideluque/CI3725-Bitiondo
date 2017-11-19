@@ -100,25 +100,25 @@ end
 
 class AssignationNode
 
-	def initialize(identifier, exp1, exp2=nil)
+	def initialize(identifier, position, value)
 		@identifier = identifier
-		@exp1 = exp1
-		@exp2 = exp2
+		@position = position
+		@value = value
 	end
 
 	def printAST(ident)
 		puts "#{ident}ASSIGN"
 		puts "#{ident+"  "}variable: #{@identifier.value}"
-		if !@exp2
-			puts "#{ident+"  "}value:"
-			@exp1.printAST(ident+"    ")
-		else
+		
+		if @position
 			puts "#{ident+"  "}position:"
-			@exp1.printAST(ident+"    ")
-			puts "#{ident+"  "}value:"
-			@exp2.printAST(ident+"    ")
+			@position.printAST(ident+"    ")
 		end
+	
+		puts "#{ident+"  "}value:"
+		@value.printAST(ident+"    ")
 	end
+
 end
 
 class InputNode

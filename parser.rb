@@ -815,7 +815,7 @@ module_eval(<<'.,.,', 'parser.y', 94)
 
 module_eval(<<'.,.,', 'parser.y', 99)
   def _reduce_25(val, _values, result)
-    result = AssignationNode.new(val[0], val[2])
+    result = AssignationNode.new(val[0], nil, val[2])
     result
   end
 .,.,
