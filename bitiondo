@@ -17,7 +17,7 @@
 # Import dependencies
 require_relative "lexer.rb"
 require_relative "parser.rb"
-#require_relative "semanticAnalyzer.rb"
+require_relative "symtable.rb"
 
 def main
 

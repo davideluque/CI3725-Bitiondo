@@ -22,7 +22,7 @@
 #-----------------------------------------------------------
 # Simbolos para la tabla de símbolos
 #-----------------------------------------------------------
-class Symbol
+class Sym
 
 	attr_reader	:name, :type, :value, :size
 
@@ -61,7 +61,6 @@ class SymbolTable
 
 	def initialize(parentTable)
 		@symTable = Hash.new
-		#@scope = scope
 		@parentTable = parentTable
 	end
 
@@ -70,22 +69,25 @@ class SymbolTable
 		if value
 			
 			if size
-				s = Symbol.new(name, type, value, size)
-				symTable[:name] = s
+				s = Sym.new(name, type, value, size)
+				@symTable[name] = s
 				return true
 			end
 			
-			s = Symbol.new(name, type, value, nil)
+			s = Sym.new(name, type, value, nil)
+			@symTable[name] = s
 			return true
 
 		elsif not value
 			
 			if size
-				s = Symbol.new(name, type, nil, size)
+				s = Sym.new(name, type, nil, size)
+				@symTable[name] = s
 				return true
 			end
 
-			s = Symbol.new(name, type, nil, nil)
+			s = Sym.new(name, type, nil, nil)
+			@symTable[name] = s
 			return true
 		end
 
@@ -98,16 +100,16 @@ class SymbolTable
 	end
 
 	def update(name, type, value, size)
-		insert(name, type, value, size)
+		return insert(name, type, value, size)
 	end
 
-	def isMember()
+	def isMember(name)
 		return @symTable.has_key?(name)
 	end
 
 	def find(name)
 		if @symTable.has_key?(name)
-			return @symTable[:name]
+			return @symTable[name]
 		end
 		return false 
 	end

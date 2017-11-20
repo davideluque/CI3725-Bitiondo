@@ -1109,14 +1109,14 @@ module_eval(<<'.,.,', 'parser.y', 178)
 
 module_eval(<<'.,.,', 'parser.y', 179)
   def _reduce_67(val, _values, result)
-    result = ConstExpressionNode.new(val[0], "const")
+    result = ConstExpressionNode.new(val[0], "bool")
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 180)
   def _reduce_68(val, _values, result)
-    result = ConstExpressionNode.new(val[0], "const")
+    result = ConstExpressionNode.new(val[0], "bool")
     result
   end
 .,.,

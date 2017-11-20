@@ -177,8 +177,8 @@ class Parser
 		| 'identifier' 								{result = ConstExpressionNode.new(val[0], "variable")}
 		| 'integer' 									{result = ConstExpressionNode.new(val[0], "int")}
 		| 'bitexpr' 									{result = ConstExpressionNode.new(val[0], "bits")}
-		| 'true' 											{result = ConstExpressionNode.new(val[0], "const")}
-		| 'false' 										{result = ConstExpressionNode.new(val[0], "const")}
+		| 'true' 											{result = ConstExpressionNode.new(val[0], "bool")}
+		| 'false' 										{result = ConstExpressionNode.new(val[0], "bool")}
 		| 'string' 										{result = ConstExpressionNode.new(val[0], "string")}
 		| 'identifier' '[' EXPRESSION ']' {result = AccessNode.new(val[0], val[2])}
 		;

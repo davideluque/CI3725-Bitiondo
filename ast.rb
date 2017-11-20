@@ -21,8 +21,6 @@
 
 # For more information about the meaning of each node, see the file parser.y
 
-require_relative "symtable.rb"
-
 class BlockNode
 
 	attr_accessor :statements, :instructions
@@ -48,7 +46,6 @@ class BlockNode
 		t = SymbolTable.new(parentTable)
 		
 		if @statements
-			puts "Voy a checar por statements!"
 			@statements.check(t)
 		end
 
@@ -75,9 +72,9 @@ class StatementsNode
 		@statementNode.printAST(indent)
 	end
 
-	def check(parentTable)
-		@statementNode.check(parentTable)
-		@statementsNode.check(parentTable)
+	def check(table)
+		@statementsNode.check(table)
+		@statementNode.check(table)
 	end
 
 end
@@ -105,12 +102,43 @@ class StatementNode
 		end
 	end
 
-	def check(parentTable)
-		puts "Me llamaron pa chequear estas cositas papi"
-		puts "#{@type} #{@identifier} #{@size} #{@value}"
-		puts "Eso es todo mi rey, chaitoo."
+	def check(table)
+
+		# Checking for variables of type int a; bits b[2];
+		if not @size and not @value
+
+		# Case: Variable has been declared before
+			if table.isMember(@identifier.value)
+				# Types are the same
+
+				if @type.value == table.find(@identifier.value).type
+					puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: La variable '#{@identifier.value}' ya ha sido declarada en este alcance"
+					return
+				end
+
+				# Types are different
+				table.update(@identifier.value, @type.type, nil, nil)
+				return
+
+			end
+
+			table.insert(@identifier.value, @type.type, nil, nil)
+			return
+
+		end
+
+		# Checking for variables of type bool a = false;
+		if not @size
+			if @type.type == @value.type
+				table.insert(@identifier.value, @type.type, nil, @value.value)
+			end
+		end
+
+		#puts "Me llamaron pa chequear estas cositas papi"
+		#puts "#{@type.type} #{@identifier.value} #{@size}"
+		#puts "#{@type} #{@identifier} #{@size} #{@value}"
 		puts "Por cierto, me mandaron esta tabla por parametro que hagoooo"
-		puts parentTable
+		puts table
 	end
 
 end
@@ -131,8 +159,8 @@ class InstructionsNode
 	end
 
 	def check(parentTable)
-		@instructionNode.check(parentTable)
 		@instructionsNode.check(parentTable)
+		@instructionNode.check(parentTable)
 	end
 
 end
@@ -326,6 +354,11 @@ class ConstExpressionNode
 		puts "#{indent}#{@type}: #{@value.value}"
 	end
 
+	def check(table)
+		return @type
+		# SI ES VARIABLE ESTO ES DISTINTO
+	end
+
 end
 
 class BinExpressionNode
@@ -343,6 +376,14 @@ class BinExpressionNode
 		@leftoperand.printAST(indent+"    ")
 		puts "#{indent+"  "}right operand:"
 		@rightoperand.printAST(indent+"    ")
+	end
+
+	def check(table)
+		if @leftoperand.check(table) == @rightoperand.check(table)
+			puts "Tenemos el mismo tipo"
+			return
+		end
+		puts "No tenemos el mismo tipo"
 	end
 
 end
