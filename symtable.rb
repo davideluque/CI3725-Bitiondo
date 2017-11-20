@@ -111,7 +111,24 @@ class SymbolTable
 		if @symTable.has_key?(name)
 			return @symTable[name]
 		end
+		
+		if parentTable
+			return parentTable.find(name)
+		end
+
 		return false 
+	end
+
+	def lookup(name)
+		if isMember(name)
+			return isMember(name)
+		end
+
+		if parentTable
+			return parentTable.lookup(name)
+		end
+
+		return false
 	end
 
 end

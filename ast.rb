@@ -355,8 +355,12 @@ class ConstExpressionNode
 	end
 
 	def check(table)
-		return @type
-		# SI ES VARIABLE ESTO ES DISTINTO
+		if @type != "variable"
+			return @type
+		end
+		if tabla.lookup(@value)
+			return tabla.find(@value).type
+		puts "Error. Variable no declarada. No se encontro ni en las tablas padres."
 	end
 
 end
@@ -400,6 +404,15 @@ class UnaryExpressionNode
 		puts "#{indent+"  "}operand:"
 		@operand.printAST(indent+"    ")
 		puts "#{indent+"  "}operator: #{@operator}"
+	end
+
+	def check(table)
+		if operand.check(table) != "variable"
+			return 	operand.check(table)
+		end
+		if tabla.lookup(@value)
+			return tabla.find(@value).type
+		puts "Error. Variable no declarada. No se encontro ni en las tablas padres."
 	end
 
 end
