@@ -21,6 +21,8 @@
 
 # For more information about the meaning of each node, see the file parser.y
 
+require_relative "symtable.rb"
+
 class BlockNode
 
 	attr_accessor :statements, :instructions
@@ -42,8 +44,19 @@ class BlockNode
 		return
 	end
 
-	def check()
-		puts "Hola"
+	def check(parentTable)
+		t = SymbolTable.new(parentTable)
+		
+		if @statements
+			puts "Voy a checar por statements!"
+			@statements.check(t)
+		end
+
+		if @instructions
+			puts "Voy a checar por instructions"
+			@instructions.check(t)
+		end
+
 	end
 
 end
@@ -61,6 +74,12 @@ class StatementsNode
 		@statementsNode.printAST(indent)
 		@statementNode.printAST(indent)
 	end
+
+	def check(parentTable)
+		@statementNode.check(parentTable)
+		@statementsNode.check(parentTable)
+	end
+
 end
 
 class StatementNode
@@ -86,9 +105,12 @@ class StatementNode
 		end
 	end
 
-	# def check()
-	# 	if @type == "int" 
-
+	def check(parentTable)
+		puts "Me llamaron pa chequear estas cositas papi"
+		puts "#{@type} #{@identifier} #{@size} #{@value}"
+		puts "Eso es todo mi rey, chaitoo."
+		puts "Por cierto, me mandaron esta tabla por parametro que hagoooo"
+		puts parentTable
 	end
 
 end
@@ -107,6 +129,12 @@ class InstructionsNode
 		@instructionsNode.printAST(indent)
 		@instructionNode.printAST(indent)
 	end
+
+	def check(parentTable)
+		@instructionNode.check(parentTable)
+		@instructionsNode.check(parentTable)
+	end
+
 end
 
 class AssignationNode

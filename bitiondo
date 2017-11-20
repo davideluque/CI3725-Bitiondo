@@ -17,7 +17,7 @@
 # Import dependencies
 require_relative "lexer.rb"
 require_relative "parser.rb"
-require_relative "semanticAnalyzer.rb"
+#require_relative "semanticAnalyzer.rb"
 
 def main
 
@@ -82,8 +82,9 @@ def main
 
 	# Create symbol table for the AST returned by the parser
 	begin
-		semanticAnalyser = SemanticAnalyser.new(ast)
-		symboltable = semanticAnalyser.analyse
+		ast.check(nil)
+		#ast.hasSemanticErrors(?)
+		#ast. Rescue
 	end
 
 end

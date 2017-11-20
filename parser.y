@@ -58,7 +58,7 @@ class Parser
 
 		# Statements rule. Bitiondo can have several statements or one
 		STATEMENTS
-		: STATEMENTS STATEMENT {result = StatementsNode.new(val[0], val[1])}
+		: STATEMENTS STATEMENT 	{result = StatementsNode.new(val[0], val[1])}
 		| STATEMENT 						{result = val[0]}
 		;
 
