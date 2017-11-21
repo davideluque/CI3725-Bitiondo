@@ -107,25 +107,28 @@ class SymbolTable
 		return @symTable.has_key?(name)
 	end
 
+	# Returns element
 	def find(name)
 		if @symTable.has_key?(name)
 			return @symTable[name]
 		end
 		
-		if parentTable
-			return parentTable.find(name)
+		if @parentTable
+			return @parentTable.find(name)
 		end
 
-		return false 
+		# Raise exception and finaliza el programa!
+		return nil 
 	end
 
+	# Returns true or false if element exists
 	def lookup(name)
 		if isMember(name)
 			return isMember(name)
 		end
 
-		if parentTable
-			return parentTable.lookup(name)
+		if @parentTable
+			return @parentTable.lookup(name)
 		end
 
 		return false

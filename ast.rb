@@ -50,7 +50,6 @@ class BlockNode
 		end
 
 		if @instructions
-			puts "Voy a checar por instructions"
 			@instructions.check(t)
 		end
 
@@ -81,11 +80,11 @@ end
 
 class StatementNode
 
-	def initialize(type, identifier, size, value)
+	def initialize(type, identifier, value, size)
 		@type = type
 		@identifier = identifier
-		@size = size
 		@value = value
+		@size = size
 	end
 
 	def printAST(indent)
@@ -103,42 +102,56 @@ class StatementNode
 	end
 
 	def check(table)
-
-		# Checking for variables of type int a; bits b[2];
-		if not @size and not @value
+		
+		#puts @type
+		#puts @identifier
+		#puts @size
+		#puts @value
 
 		# Case: Variable has been declared before
-			if table.isMember(@identifier.value)
-				# Types are the same
+		if table.isMember(@identifier.value)
+			puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: La variable '#{@identifier.value}' ya ha sido declarada en este alcance"
+			return
+		end
 
-				if @type.value == table.find(@identifier.value).type
-					puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: La variable '#{@identifier.value}' ya ha sido declarada en este alcance"
-					return
-				end
-
-				# Types are different
-				table.update(@identifier.value, @type.type, nil, nil)
-				return
-
-			end
-
+		# Variable hasnt been declared before, insert in table proper way
+		if not @size and not @value
 			table.insert(@identifier.value, @type.type, nil, nil)
 			return
-
 		end
 
 		# Checking for variables of type bool a = false;
 		if not @size
-			if @type.type == @value.type
-				table.insert(@identifier.value, @type.type, nil, @value.value)
+			if @type.type == @value.check(table)
+				return table.insert(@identifier.value, @type.type, nil, @value.value)
+			else
+				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tipo #{@type.type} de la declaración no coincide con el tipo de la asignación"
+				return			
 			end
 		end
 
-		#puts "Me llamaron pa chequear estas cositas papi"
-		#puts "#{@type.type} #{@identifier.value} #{@size}"
-		#puts "#{@type} #{@identifier} #{@size} #{@value}"
-		puts "Por cierto, me mandaron esta tabla por parametro que hagoooo"
-		puts table
+		if @size
+			if @type.value != "bits"
+				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: La variable #{@identifier.value} no puede ser declarada con el tipo #{@type.type}"
+				return
+			elsif @size.check(table) != "int"
+				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tamaño debe ser un entero"
+			else
+				return table.insert(@identifier.value, @type.type, @size.value, nil)
+			end
+		end
+
+		if @size and @value
+
+			if @value.check(table) != "bits"
+				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tipo #{@type.type} de la declaración no coincide con el tipo de la asignación"
+				return table.insert(@identifier.value, @type.type, @size.value, @value.value)
+			else
+
+			end
+
+		end
+
 	end
 
 end
@@ -186,6 +199,27 @@ class AssignationNode
 		@value.printAST(indent+"    ")
 	end
 
+	def check(table)
+
+		if not @position
+			if not table.lookup(@identifier.value)
+				puts "No esta declarada. No puedes asignar"
+				return
+			end
+		end
+
+		if @position.check(table) != "int"
+			puts "La posicion no es un entero"
+			return
+		end
+
+		if table.find(@identifier.value).type != @value.check(table)
+			puts "Tipos que no coinciden"
+			return
+		end
+
+	end
+
 end
 
 class InputNode
@@ -198,6 +232,12 @@ class InputNode
 		puts "#{indent}INPUT"
 		puts "#{indent+"  "}element:"
 		puts "#{indent+"    "}variable: #{@identifier.value}"
+	end
+
+	def check(table)
+		if not table.lookup(@identifier.value)
+			puts "Error: la variable #{@identifier.value} no fue declarada."
+		end
 	end
 
 end
@@ -213,6 +253,10 @@ class OutputNode
 		puts "#{indent}#{@type}"
 		puts "#{indent+"  "}elements:"
 		@expressions.printAST(indent+"    ")
+	end
+
+	def check(table)
+	 @expressions.check(table)
 	end
 
 end
@@ -231,6 +275,13 @@ class ExpressionsNode
 		@expressionsNode.printAST(indent)
 		@expressionNode.printAST(indent)
 	end
+
+	def check(table)
+		@expressionsNode.check(table)
+		@expressionNode.check(table)
+		return "Varias"
+	end
+
 end
 
 class ConditionalNode
@@ -252,6 +303,14 @@ class ConditionalNode
 			@ins2.printAST(indent+"    ")
 		end
 	end
+
+	def check(table)
+		if @expression.check(table) != "bool"
+			# HACER LO DEL INSTANCE OF..
+			puts "Error en línea {@expression.leftoperand.value.locationinfo[:line]}, columna {@expression.leftoperand.value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'"
+		end
+	end
+
 end
 
 class ForLoopNode
@@ -341,6 +400,165 @@ class WhileLoopNode
 
 end
 
+class BinExpressionNode
+
+	attr_reader :leftoperand, :rightoperand, :operator, :value
+
+	def initialize(leftoperand, rightoperand, operator)
+		@leftoperand = leftoperand
+		@rightoperand = rightoperand
+		@operator = operator
+		@value = "#{@leftoperand.value} #{@operator} #{@rightoperand.value}"
+		
+		# Key is operand, array[0] is left expected operator, 
+		# array[1] is right expected operator, array[2] is result
+		# type
+		@validOperations = {
+			
+			'sum': 	['PLUS', 'int', 'int', 'int'],
+			'sub': 	['MINUS', 'int', 'int', 'int'],
+			'mul': 	['MULTIPLICATION', 'int', 'int', 'int'],
+			'div': 	['DIVISION', 'int', 'int', 'int'],
+			'mod': 	['MODULUS', 'int', 'int', 'int'],
+
+			'lt': 	['LESSTHAN', 'int', 'int', 'bool'],
+			'gt': 	['GREATERTHAN', 'int', 'int', 'bool'],
+			'lte': 	['LESSTHANEQUAL', 'int', 'int', 'bool'],
+			'gte': 	['GREATERTHANEQUAL', 'int', 'int', 'bool'],
+
+			'eqint': ['ISEQUAL', 'int', 'int', 'bool'],			
+			'difint': ['ISNOTEQUAL', 'int', 'int', 'bool'],
+			'eqbool': ['ISEQUAL', 'bool','bool', 'bool'],
+			'difbool': ['ISNOTEQUAL', 'bool', 'bool', 'bool'],
+			'eqbits': ['ISEQUAL', 'bits','bits', 'bool'],
+			'difbits': ['ISNOTEQUAL', 'bits', 'bits', 'bool'],
+
+			'andbit': 	['ANDBITS', 'bits', 'bits', 'bits'],
+			'orbit': 	['ORBITS', 'bits', 'bits', 'bits'],
+			'excl': 	['TRANSFORM', 'bits', 'bits', 'bits'],
+			'rshift': ['LEFTSHIFT', 'bits', 'int', 'bits'],
+			'lshift': ['RIGHTSHIFT', 'bits', 'int', 'bits'],
+
+			'and': 	['ANDBOOL', 'bool', 'bool', 'bool'],
+			'or': 	['ORBOOL', 'bool', 'bool', 'bool'],
+		}
+	end
+
+	def printAST(indent)
+		puts "#{indent}BIN_EXPRESSION:"
+		puts "#{indent+"  "}operator: #{@operator}"
+		puts "#{indent+"  "}left operand:"
+		@leftoperand.printAST(indent+"    ")
+		puts "#{indent+"  "}right operand:"
+		@rightoperand.printAST(indent+"    ")
+	end
+
+	def check(table)
+
+		operandoDeclarado = true
+
+		if @leftoperand.check(table) == "variable"
+			if table.lookup(@leftoperand.value.value)
+				leftType = table.find(@leftoperand.value.value).type
+			else
+				operandoDeclarado = false
+				puts "Error: El operando #{@leftoperand.value.value} no fue declarado"
+			end
+		else
+			leftType = @leftoperand.check(table)
+		end
+
+		if @rightoperand.check(table) == "variable"
+			if table.lookup(@rightoperand.value.value)
+				rightType = table.find(@rightoperand.value.value).type
+			else
+				operandoDeclarado = false
+				puts "Error: El operando #{@rightoperand.value.value} no fue declarado"
+				return
+			end
+		else
+			rightType = @rightoperand.check(table)	
+		end
+
+		if operandoDeclarado
+			@validOperations.each do |op, value|
+				if leftType == value[1] and @operator == value[0] and rightType == value[2]
+					return value[3]
+				end
+			end
+		end
+
+		if @leftoperand.instance_of? BinExpressionNode
+			puts "Error: #{@operator} no puede funcionar con estos tipos"
+			return
+
+		elsif @leftoperand.instance_of? UnaryExpressionNode
+			puts "Error: #{@operator} no puede funcionar con estos tipos"
+			return
+		else
+			puts "Error en la línea #{@leftoperand.value.locationinfo[:line]}, columna #{@leftoperand.value.locationinfo[:column]}: #{@operator} no puede funcionar con estos tipos"
+			return
+		end
+	end
+
+end
+
+class UnaryExpressionNode
+
+	attr_reader :operand, :operator, :value
+
+	def initialize(operand, operator)
+		@operand = operand
+		@operator = operator
+		@value = "#{operator} #{operand}"
+	
+		@validUnaryOperations = {
+
+			'-': ['UMINUS', 'int', 'int'],
+			'@': ['TRANSFORM', 'int', 'bits'],
+			'!': ['NOT', 'bool', 'bool'],
+			'$': ['BITREPRESENTATION', 'bits', 'bits'],
+			'~': ['NOTBITS', 'bits', 'bits']
+		}
+	end
+
+	def printAST(indent)
+		puts "#{indent}UNARY_EXPRESSION:"
+		puts "#{indent+"  "}operand:"
+		@operand.printAST(indent+"    ")
+		puts "#{indent+"  "}operator: #{@operator}"
+	end
+
+	def check(table)
+		
+		operandoDeclarado = true
+
+		if @operand.check(table) == "variable"
+			if table.lookup(@operand.value.value)
+				type = table.find(@operand.value.value).type
+			else
+				operandoDeclarado = false
+				puts "Error: El operando #{@rightoperand.value.value} no fue declarado"
+				return
+			end
+		else
+			type = @operand.check(table)	
+		end
+
+		if operandoDeclarado
+			@validUnaryOperations.each do |op, value|
+				if type == value[1] and @operator == value[0]
+					return value[2]
+				end
+			end
+		end
+
+		puts "Error en la línea #{@operand.value.locationinfo[:line]}, columna #{@operand.value.locationinfo[:column]}: #{@operator} no puede funcionar con estos tipos"
+		return
+
+		end
+	end
+
 class ConstExpressionNode
 
 	attr_reader :type, :value
@@ -355,64 +573,17 @@ class ConstExpressionNode
 	end
 
 	def check(table)
+		
 		if @type != "variable"
 			return @type
 		end
-		if tabla.lookup(@value)
+		
+		if table.lookup(@value)
 			return tabla.find(@value).type
-		puts "Error. Variable no declarada. No se encontro ni en las tablas padres."
-	end
-
-end
-
-class BinExpressionNode
-
-	def initialize(leftoperand, rightoperand, operator)
-		@leftoperand = leftoperand
-		@rightoperand = rightoperand
-		@operator = operator
-	end
-
-	def printAST(indent)
-		puts "#{indent}BIN_EXPRESSION:"
-		puts "#{indent+"  "}operator: #{@operator}"
-		puts "#{indent+"  "}left operand:"
-		@leftoperand.printAST(indent+"    ")
-		puts "#{indent+"  "}right operand:"
-		@rightoperand.printAST(indent+"    ")
-	end
-
-	def check(table)
-		if @leftoperand.check(table) == @rightoperand.check(table)
-			puts "Tenemos el mismo tipo"
-			return
+		else
+			return "variable"
 		end
-		puts "No tenemos el mismo tipo"
-	end
 
-end
-
-class UnaryExpressionNode
-
-	def initialize(operand, operator)
-		@operand = operand
-		@operator = operator
-	end
-
-	def printAST(indent)
-		puts "#{indent}UNARY_EXPRESSION:"
-		puts "#{indent+"  "}operand:"
-		@operand.printAST(indent+"    ")
-		puts "#{indent+"  "}operator: #{@operator}"
-	end
-
-	def check(table)
-		if operand.check(table) != "variable"
-			return 	operand.check(table)
-		end
-		if tabla.lookup(@value)
-			return tabla.find(@value).type
-		puts "Error. Variable no declarada. No se encontro ni en las tablas padres."
 	end
 
 end

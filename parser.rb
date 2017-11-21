@@ -703,21 +703,21 @@ module_eval(<<'.,.,', 'parser.y', 66)
 
 module_eval(<<'.,.,', 'parser.y', 67)
   def _reduce_9(val, _values, result)
-    result = StatementNode.new(val[0], val[1], nil, val[3])
+    result = StatementNode.new(val[0], val[1], val[3], nil)
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 68)
   def _reduce_10(val, _values, result)
-    result = StatementNode.new(val[0], val[1], val[3], nil)
+    result = StatementNode.new(val[0], val[1], nil, val[3])
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 69)
   def _reduce_11(val, _values, result)
-    result = StatementNode.new(val[0], val[1], val[3], val[6])
+    result = StatementNode.new(val[0], val[1], val[6], val[3])
     result
   end
 .,.,
