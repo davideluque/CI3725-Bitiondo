@@ -306,8 +306,17 @@ class ConditionalNode
 
 	def check(table)
 		if @expression.check(table) != "bool"
-			# HACER LO DEL INSTANCE OF..
-			puts "Error en línea {@expression.leftoperand.value.locationinfo[:line]}, columna {@expression.leftoperand.value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'"
+
+			if @expression.instance_of? BinExpressionNode
+				puts "Error en línea #{@expression.leftoperand.value.locationinfo[:line]}, columna #{@expression.leftoperand.value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'"
+			elsif @expression.instance_of? UnaryExpressionNode
+				puts "Error en línea #{@expression.operand.value.locationinfo[:line]}, columna #{@expression.operand.value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'"
+			elsif
+				@expression.instance_of? ConstExpressionNode
+					puts "Error en línea #{@expression.value.locationinfo[:line]}, columna #{@expression.value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'"
+			else
+				puts "Instruccion 'if' espera expresion de tipo 'bool'"
+			end
 		end
 	end
 
@@ -333,6 +342,11 @@ class ForLoopNode
 		puts "#{indent+"  "}INSTRUCTION:"
 		@instruction.printAST(indent+"    ")
 	end
+
+	def check(table)
+
+	end
+
 end
 
 class ForbitsLoopNode
@@ -398,6 +412,9 @@ class WhileLoopNode
 		@instruction.printAST(indent+"    ")
 	end
 
+	def check()
+		
+	end
 end
 
 class BinExpressionNode
@@ -415,32 +432,32 @@ class BinExpressionNode
 		# type
 		@validOperations = {
 			
-			'sum': 	['PLUS', 'int', 'int', 'int'],
-			'sub': 	['MINUS', 'int', 'int', 'int'],
-			'mul': 	['MULTIPLICATION', 'int', 'int', 'int'],
-			'div': 	['DIVISION', 'int', 'int', 'int'],
-			'mod': 	['MODULUS', 'int', 'int', 'int'],
+			'sum'=> 	['PLUS', 'int', 'int', 'int'],
+			'sub'=> 	['MINUS', 'int', 'int', 'int'],
+			'mul'=> 	['MULTIPLICATION', 'int', 'int', 'int'],
+			'div'=> 	['DIVISION', 'int', 'int', 'int'],
+			'mod'=> 	['MODULUS', 'int', 'int', 'int'],
 
-			'lt': 	['LESSTHAN', 'int', 'int', 'bool'],
-			'gt': 	['GREATERTHAN', 'int', 'int', 'bool'],
-			'lte': 	['LESSTHANEQUAL', 'int', 'int', 'bool'],
-			'gte': 	['GREATERTHANEQUAL', 'int', 'int', 'bool'],
+			'lt'=> 	['LESSTHAN', 'int', 'int', 'bool'],
+			'gt'=> 	['GREATERTHAN', 'int', 'int', 'bool'],
+			'lte'=> 	['LESSTHANEQUAL', 'int', 'int', 'bool'],
+			'gte'=> 	['GREATERTHANEQUAL', 'int', 'int', 'bool'],
 
-			'eqint': ['ISEQUAL', 'int', 'int', 'bool'],			
-			'difint': ['ISNOTEQUAL', 'int', 'int', 'bool'],
-			'eqbool': ['ISEQUAL', 'bool','bool', 'bool'],
-			'difbool': ['ISNOTEQUAL', 'bool', 'bool', 'bool'],
-			'eqbits': ['ISEQUAL', 'bits','bits', 'bool'],
-			'difbits': ['ISNOTEQUAL', 'bits', 'bits', 'bool'],
+			'eqint'=> ['ISEQUAL', 'int', 'int', 'bool'],			
+			'difint'=> ['ISNOTEQUAL', 'int', 'int', 'bool'],
+			'eqbool'=> ['ISEQUAL', 'bool','bool', 'bool'],
+			'difbool'=> ['ISNOTEQUAL', 'bool', 'bool', 'bool'],
+			'eqbits'=> ['ISEQUAL', 'bits','bits', 'bool'],
+			'difbits'=> ['ISNOTEQUAL', 'bits', 'bits', 'bool'],
 
-			'andbit': 	['ANDBITS', 'bits', 'bits', 'bits'],
-			'orbit': 	['ORBITS', 'bits', 'bits', 'bits'],
-			'excl': 	['TRANSFORM', 'bits', 'bits', 'bits'],
-			'rshift': ['LEFTSHIFT', 'bits', 'int', 'bits'],
-			'lshift': ['RIGHTSHIFT', 'bits', 'int', 'bits'],
+			'andbit'=> 	['ANDBITS', 'bits', 'bits', 'bits'],
+			'orbit'=> 	['ORBITS', 'bits', 'bits', 'bits'],
+			'excl'=> 	['TRANSFORM', 'bits', 'bits', 'bits'],
+			'rshift'=> ['LEFTSHIFT', 'bits', 'int', 'bits'],
+			'lshift'=> ['RIGHTSHIFT', 'bits', 'int', 'bits'],
 
-			'and': 	['ANDBOOL', 'bool', 'bool', 'bool'],
-			'or': 	['ORBOOL', 'bool', 'bool', 'bool'],
+			'and'=> 	['ANDBOOL', 'bool', 'bool', 'bool'],
+			'or'=> 	['ORBOOL', 'bool', 'bool', 'bool'],
 		}
 	end
 
@@ -514,11 +531,11 @@ class UnaryExpressionNode
 	
 		@validUnaryOperations = {
 
-			'-': ['UMINUS', 'int', 'int'],
-			'@': ['TRANSFORM', 'int', 'bits'],
-			'!': ['NOT', 'bool', 'bool'],
-			'$': ['BITREPRESENTATION', 'bits', 'bits'],
-			'~': ['NOTBITS', 'bits', 'bits']
+			'-'=> ['UMINUS', 'int', 'int'],
+			'@'=> ['TRANSFORM', 'int', 'bits'],
+			'!'=> ['NOT', 'bool', 'bool'],
+			'$'=> ['BITREPRESENTATION', 'bits', 'bits'],
+			'~'=> ['NOTBITS', 'bits', 'bits']
 		}
 	end
 
