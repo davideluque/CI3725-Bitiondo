@@ -81,83 +81,83 @@ class Lexer
 
 		@tokensdict = {
 
-			'bitexpr': /\A0b[0-1]+/,
+			'bitexpr'=> /\A0b[0-1]+/,
 
-			# Numbers:
-			'integer': /\A[0-9]+/,
+			# Numbers=>
+			'integer'=> /\A[0-9]+/,
 
 			# Reserved words:
-			'begin': /\Abegin\b/,
-			'end': /\Aend\b/,
-			'if': /\Aif\b/,
-			'else': /\Aelse\b/,
-			'for': /\Afor\b/,
-			'forbits': /\Aforbits\b/,
-			'as': /\Aas\b/,
-			'from': /\Afrom\b/,
-			'going': /\Agoing\b/,
-			'higher': /\Ahigher\b/,
-			'lower': /\Alower\b/,
-			'while': /\Awhile\b/,
-			'do': /\Ado\b/,
-			'repeat': /\Arepeat\b/,
-			'input': /\Ainput\b/,
-			'output': /\Aoutput\b/,
-			'outputln': /\Aoutputln\b/,
-			'true': /\Atrue\b/,
-			'false': /\Afalse\b/,
+			'begin'=> /\Abegin\b/,
+			'end'=> /\Aend\b/,
+			'if'=> /\Aif\b/,
+			'else'=> /\Aelse\b/,
+			'for'=> /\Afor\b/,
+			'forbits'=> /\Aforbits\b/,
+			'as'=> /\Aas\b/,
+			'from'=> /\Afrom\b/,
+			'going'=> /\Agoing\b/,
+			'higher'=> /\Ahigher\b/,
+			'lower'=> /\Alower\b/,
+			'while'=> /\Awhile\b/,
+			'do'=> /\Ado\b/,
+			'repeat'=> /\Arepeat\b/,
+			'input'=> /\Ainput\b/,
+			'output'=> /\Aoutput\b/,
+			'outputln'=> /\Aoutputln\b/,
+			'true'=> /\Atrue\b/,
+			'false'=> /\Afalse\b/,
 			
-			# Strings:
-			'string': /\A"(\\.|[^\\"\n])*"/,
+			# Strings
+			'string'=> /\A"(\\.|[^\\"\n])*"/,
 			
 			# Symbols:
 
 			# Unary
-			'[': /\A\[/,
-			']': /\A\]/,
-			'~': /\A\~/,
-			'$': /\A\$/,
-			'@': /\A\@/,
-			'-': /\A\-/, 
+			'['=> /\A\[/,
+			']'=> /\A\]/,
+			'~'=> /\A\~/,
+			'$'=> /\A\$/,
+			'@'=> /\A\@/,
+			'-'=> /\A\-/, 
 
 			# Binary
-			'*': /\A\*/, 
-			'/': /\A\//,
-			'%': /\A\%/,
-			'+': /\A\+/, 
-			'<<': /\A<</,
-			'>>': /\A>>/,
+			'*'=> /\A\*/, 
+			'/'=> /\A\//,
+			'%'=> /\A\%/,
+			'+'=> /\A\+/, 
+			'<<'=> /\A<</,
+			'>>'=> /\A>>/,
 
-			'<=': /\A\<\=/,
-			'>=': /\A\>\=/,
-			'<': /\A\</,
-			'>': /\A\>/,
-			'==': /\A\=\=/,
+			'<='=> /\A\<\=/,
+			'>='=> /\A\>\=/,
+			'<'=> /\A\</,
+			'>'=> /\A\>/,
+			'=='=> /\A\=\=/,
 
-			'!=': /\A\!\=/,
-			'!': /\A\!/,
+			'!='=> /\A\!\=/,
+			'!'=> /\A\!/,
 
-			'&&': /\A\&\&/,
-			'&': /\A\&/,
+			'&&'=> /\A\&\&/,
+			'&'=> /\A\&/,
 
-			'^': /\A\^/,
+			'^'=> /\A\^/,
 
-			'||': /\A\|\|/,
-			'|': /\A\|/,	
+			'||'=> /\A\|\|/,
+			'|'=> /\A\|/,	
 
-			'=': /\A\=/,
-			'(': /\A\(/,
-			')': /\A\)/,
-			',': /\A,/,
-			';': /\A\;/,
+			'='=> /\A\=/,
+			'('=> /\A\(/,
+			')'=> /\A\)/,
+			','=> /\A,/,
+			';'=> /\A\;/,
 			
 			# Data Type:
-			'int': /\Aint\b/,
-			'bool': /\Abool\b/,
-			'bits': /\Abits\b/,
+			'int'=> /\Aint\b/,
+			'bool'=> /\Abool\b/,
+			'bits'=> /\Abits\b/,
 
 			# Identifiers:
-			'identifier': /\A[A-Za-z][A-Za-z0-9\_]*/
+			'identifier'=> /\A[A-Za-z][A-Za-z0-9\_]*/
 		}
 
 		# Try to read file and save his data.

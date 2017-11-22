@@ -1,5 +1,5 @@
 #! /usr/bin/ruby
-
+#<Encoding:UTF-8>
 ############################################################
 # Universidad Simón Bolívar
 # CI3175: Traductores e interpretadores

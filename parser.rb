@@ -7,7 +7,7 @@
 require 'racc/parser.rb'
 
 
-require_relative "ast.rb"
+require "./ast.rb"
 
 class SyntacticError < RuntimeError
 
