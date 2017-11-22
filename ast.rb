@@ -192,6 +192,8 @@ end
 
 class AssignationNode
 
+	attr_reader :identifier, :position, :value
+
 	def initialize(identifier, position, value)
 		@identifier = identifier
 		@position = position
@@ -218,9 +220,10 @@ class AssignationNode
 				puts "No esta declarada. No puedes asignar"
 				return
 			end
+
 		end
 
-		if @position.check(table) != "int"
+		if @position and @position.check(table) != "int"
 			puts "La posicion no es un entero"
 			return
 		end
@@ -320,7 +323,7 @@ class ConditionalNode
 		if @expression.check(table) != "bool"
 
 			if @expression.instance_of? BinExpressionNode
-				puts "Error en línea #{@expression.leftoperand.value.locationinfo[:line]}, columna #{@expression.leftoperand.value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'"
+				puts "Error en línea #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'"
 			elsif @expression.instance_of? UnaryExpressionNode
 				puts "Error en línea #{@expression.operand.value.locationinfo[:line]}, columna #{@expression.operand.value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'"
 			elsif
@@ -356,6 +359,37 @@ class ForLoopNode
 	end
 
 	def check(table)
+		
+		# The for loop has its own table with the loop variable
+		t = SymbolTable.new(table)
+		
+		# Get assignation needed parameters
+		id = @assignation.identifier.value
+		pos = @assignation.position
+		val = @assignation.value
+
+		# Case: Assignation is like b[0] = 1;
+		if pos
+			puts "Asignación incorrecta"
+			return
+		end
+
+		# Case: Variable has been declared before
+		if t.lookup(id)
+			puts "Variable declarada anteriormente"
+			return
+		end
+
+		# Case: assignation is not integer
+		puts val.check(table)
+		if val.check(table) != "int"
+			puts "Error, no es un entero"
+			return
+		end
+
+		puts @assignation.identifier.value
+		#puts @assignation.position.value
+		puts @assignation.value.value.value
 
 	end
 end
@@ -524,7 +558,7 @@ class BinExpressionNode
 			puts "Error: #{@operator} no puede funcionar con estos tipos"
 			return
 		else
-			puts "Error en la línea #{@leftoperand.value.locationinfo[:line]}, columna #{@leftoperand.value.locationinfo[:column]}: #{@operator} no puede funcionar con estos tipos"
+			puts "Error en la línea #{findLeftMostOperand(@leftoperand).value.locationinfo[:line]}, columna #{@leftoperand.value.locationinfo[:column]}: #{@operator} no puede funcionar con estos tipos"
 			return
 		end
 	end
@@ -545,7 +579,7 @@ class UnaryExpressionNode
 			'-'=> ['UMINUS', 'int', 'int'],
 			'@'=> ['TRANSFORM', 'int', 'bits'],
 			'!'=> ['NOT', 'bool', 'bool'],
-			'$'=> ['BITREPRESENTATION', 'bits', 'bits'],
+			'$'=> ['BITREPRESENTATION', 'bits', 'int'],
 			'~'=> ['NOTBITS', 'bits', 'bits']
 		}
 	end
@@ -605,7 +639,8 @@ class ConstExpressionNode
 		if @type != "variable"
 			return @type
 		end
-		
+
+	# porque esta cayendo aqui en variable		
 		if table.lookup(@value)
 			return tabla.find(@value).type
 		else
@@ -630,4 +665,17 @@ class AccessNode
 		@expression.printAST(indent+"    ")
 	end
 
+end
+
+def findLeftMostOperand(leftOperand)
+
+	if leftOperand.instance_of? ConstExpressionNode
+		return leftOperand
+	else
+		if leftOperand.instance_of? BinExpressionNode
+			return findLeftMostOperand(leftOperand.leftoperand)
+		else
+			return findLeftMostOperand(leftOperand.operand)	
+		end
+	end
 end
