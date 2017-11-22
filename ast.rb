@@ -21,6 +21,9 @@
 
 # For more information about the meaning of each node, see the file parser.y
 
+#-----------------------------------------------------------
+# Nodo Bloque
+#-----------------------------------------------------------
 class BlockNode
 
 	attr_accessor :statements, :instructions
@@ -30,6 +33,9 @@ class BlockNode
 		@instructions = instructions
 	end
 
+#-----------------------------------------------------------
+# 
+#-----------------------------------------------------------
 	def printAST(indent="")
 		puts "#{indent}BEGIN"
 		if @statements
@@ -42,6 +48,9 @@ class BlockNode
 		return
 	end
 
+#-----------------------------------------------------------
+# 
+#-----------------------------------------------------------
 	def check(parentTable)
 		t = SymbolTable.new(parentTable)
 		
@@ -56,7 +65,10 @@ class BlockNode
 	end
 
 end
- 
+
+#-----------------------------------------------------------
+# 
+#-----------------------------------------------------------
 class StatementsNode
 
 	attr_accessor :statementsNode, :statementNode
@@ -333,6 +345,7 @@ class ForLoopNode
 		puts "#{indent+"  "}INSTRUCTION:"
 		@instruction.printAST(indent+"    ")
 	end
+
 end
 
 class ForbitsLoopNode
