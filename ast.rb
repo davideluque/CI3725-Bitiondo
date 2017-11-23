@@ -134,6 +134,8 @@ class StatementNode
 
 		# Checking for variables of type bool a = false;
 		if not @size
+			puts @value.leftoperand.value.value
+			puts table
 			if @type.type == @value.check(table)
 				return table.insert(@identifier.value, @type.type, nil, @value.value)
 			else
@@ -376,20 +378,25 @@ class ForLoopNode
 
 		# Case: Variable has been declared before
 		if t.lookup(id)
-			puts "Variable declarada anteriormente"
+			puts "ERROR DE FOR: Variable de for declarada anteriormente"
 			return
 		end
 
-		# Case: assignation is not integer
-		puts val.check(table)
+		#Case: assignation is not integer
 		if val.check(table) != "int"
 			puts "Error, no es un entero"
 			return
+		#elsif val.instance_of? BinExpressionNode
+
+
+			#t.lookup(val.value.value)
+		#	puts "Variable asignada en el for no declarada"
+		#	return
 		end
 
-		puts @assignation.identifier.value
+		#puts @assignation.identifier.value
 		#puts @assignation.position.value
-		puts @assignation.value.value.value
+	 	#puts @assignation.value.value.value
 
 	end
 end
@@ -520,7 +527,12 @@ class BinExpressionNode
 		operandoDeclarado = true
 
 		if @leftoperand.check(table) == "variable"
+			puts @table.lookup(@leftoperand.value.value)
 			if table.lookup(@leftoperand.value.value)
+				if not table.find(@leftoperand.value.value).value
+					puts "Error. Operando #{@leftoperand.value.value} declarado pero sin valor"
+					return				
+				end
 				leftType = table.find(@leftoperand.value.value).type
 			else
 				operandoDeclarado = false
@@ -532,6 +544,10 @@ class BinExpressionNode
 
 		if @rightoperand.check(table) == "variable"
 			if table.lookup(@rightoperand.value.value)
+				if not @table.find(@rightoperand.value.value).value
+					puts "Error. Operando #{@rightoperand.value.value} declarado pero sin valor"
+					return
+				end
 				rightType = table.find(@rightoperand.value.value).type
 			else
 				operandoDeclarado = false
@@ -640,9 +656,8 @@ class ConstExpressionNode
 			return @type
 		end
 
-	# porque esta cayendo aqui en variable		
-		if table.lookup(@value)
-			return tabla.find(@value).type
+		if table.lookup(@value.value)
+			return table.find(@value.value).type
 		else
 			return "variable"
 		end
