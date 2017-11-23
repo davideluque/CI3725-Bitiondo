@@ -52,6 +52,14 @@ class Sym
 		return
 	end
 
+	def to_s
+		s = "Name: #{@name}, Type: #{@type}"
+		if @value
+			s = s + " Value: #{@value}"
+		end
+		return s
+	end
+
 end
 
 #-----------------------------------------------------------

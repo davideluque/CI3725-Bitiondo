@@ -115,11 +115,6 @@ class StatementNode
 
 	def check(table)
 		
-		#puts @type
-		#puts @identifier
-		#puts @size
-		#puts @value
-
 		# Case: Variable has been declared before
 		if table.isMember(@identifier.value)
 			puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: La variable '#{@identifier.value}' ya ha sido declarada en este alcance"
@@ -134,24 +129,17 @@ class StatementNode
 
 		# Checking for variables of type bool a = false;
 		if not @size
-			puts @value.leftoperand.value.value
-			puts table
 			if @type.type == @value.check(table)
-				return table.insert(@identifier.value, @type.type, nil, @value.value)
+				if @value.instance_of? BinExpressionNode
+					return table.insert(@identifier.value, @type.type, @value.value, nil)
+				elsif @value.instance_of? UnaryExpressionNode
+					return table.insert(@identifier.value, @type.type, @value.value, nil)
+				elsif @value.instance_of? ConstExpressionNode
+					return table.insert(@identifier.value, @type.type, @value.value.value, nil)
+				end 
 			else
 				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tipo #{@type.type} de la declaración no coincide con el tipo de la asignación"
 				return			
-			end
-		end
-
-		if @size
-			if @type.value != "bits"
-				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: La variable #{@identifier.value} no puede ser declarada con el tipo #{@type.type}"
-				return
-			elsif @size.check(table) != "int"
-				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tamaño debe ser un entero"
-			else
-				return table.insert(@identifier.value, @type.type, @size.value, nil)
 			end
 		end
 
@@ -164,6 +152,17 @@ class StatementNode
 
 			end
 
+		end
+
+		if @size
+			if @type.value != "bits"
+				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: La variable #{@identifier.value} no puede ser declarada con el tipo #{@type.type}"
+				return
+			elsif @size.check(table) != "int"
+				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tamaño debe ser un entero"
+			else
+				return table.insert(@identifier.value, @type.type, nil, @size.value)
+			end
 		end
 
 	end
@@ -527,7 +526,6 @@ class BinExpressionNode
 		operandoDeclarado = true
 
 		if @leftoperand.check(table) == "variable"
-			puts @table.lookup(@leftoperand.value.value)
 			if table.lookup(@leftoperand.value.value)
 				if not table.find(@leftoperand.value.value).value
 					puts "Error. Operando #{@leftoperand.value.value} declarado pero sin valor"
@@ -537,6 +535,7 @@ class BinExpressionNode
 			else
 				operandoDeclarado = false
 				puts "Error: El operando #{@leftoperand.value.value} no fue declarado"
+				return
 			end
 		else
 			leftType = @leftoperand.check(table)
@@ -544,7 +543,7 @@ class BinExpressionNode
 
 		if @rightoperand.check(table) == "variable"
 			if table.lookup(@rightoperand.value.value)
-				if not @table.find(@rightoperand.value.value).value
+				if not table.find(@rightoperand.value.value).value
 					puts "Error. Operando #{@rightoperand.value.value} declarado pero sin valor"
 					return
 				end
@@ -657,7 +656,11 @@ class ConstExpressionNode
 		end
 
 		if table.lookup(@value.value)
-			return table.find(@value.value).type
+			if table.find(@value.value).value
+				return table.find(@value.value).type
+			else
+				return "variable"
+			end
 		else
 			return "variable"
 		end
