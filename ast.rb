@@ -446,6 +446,22 @@ class RepeatWhileLoopNode
 
 	end
 
+	def check(table)
+		if @expression.check(table) != "bool"
+
+			if @expression.instance_of? BinExpressionNode
+				puts "Error en línea #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'"
+			elsif @expression.instance_of? UnaryExpressionNode
+				puts "Error en línea #{@expression.operand.value.locationinfo[:line]}, columna #{@expression.operand.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'"
+			elsif
+				@expression.instance_of? ConstExpressionNode
+					puts "Error en línea #{@expression.value.locationinfo[:line]}, columna #{@expression.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'"
+			else
+				puts "Instruccion 'if' espera expresion de tipo 'bool'"
+			end
+		end		
+	end
+
 end
 
 class WhileLoopNode
@@ -463,8 +479,20 @@ class WhileLoopNode
 		@instruction.printAST(indent+"    ")
 	end
 
-	def check()
-		
+	def check(table)
+		if @expression.check(table) != "bool"
+
+			if @expression.instance_of? BinExpressionNode
+				puts "Error en línea #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'"
+			elsif @expression.instance_of? UnaryExpressionNode
+				puts "Error en línea #{@expression.operand.value.locationinfo[:line]}, columna #{@expression.operand.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'"
+			elsif
+				@expression.instance_of? ConstExpressionNode
+					puts "Error en línea #{@expression.value.locationinfo[:line]}, columna #{@expression.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'"
+			else
+				puts "Instruccion 'if' espera expresion de tipo 'bool'"
+			end
+		end
 	end
 end
 
