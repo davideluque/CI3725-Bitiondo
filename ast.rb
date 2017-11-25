@@ -22,7 +22,7 @@
 # For more information about the meaning of each node, see the file parser.y
 
 #-----------------------------------------------------------
-# Nodo Bloque
+#
 #-----------------------------------------------------------
 class BlockNode
 
@@ -130,9 +130,7 @@ class StatementNode
 		# Checking for variables of type bool a = false;
 		if not @size
 			if @type.type == @value.check(table)
-				if @value.instance_of? BinExpressionNode
-					return table.insert(@identifier.value, @type.type, @value.value, nil)
-				elsif @value.instance_of? UnaryExpressionNode
+				if @value.instance_of? BinExpressionNode or @value.instance_of? UnaryExpressionNode
 					return table.insert(@identifier.value, @type.type, @value.value, nil)
 				elsif @value.instance_of? ConstExpressionNode
 					return table.insert(@identifier.value, @type.type, @value.value.value, nil)
