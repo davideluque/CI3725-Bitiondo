@@ -83,8 +83,6 @@ def main
 	# Create symbol table for the AST returned by the parser
 	begin
 		ast.check(nil)
-		#ast.hasSemanticErrors(?)
-		#ast. Rescue
 		ast.printAST
 	end
 

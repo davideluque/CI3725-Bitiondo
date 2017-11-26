@@ -21,6 +21,8 @@
 
 # For more information about the meaning of each node, see the file parser.y
 
+SemanticErrors = []
+
 #-----------------------------------------------------------
 #
 #-----------------------------------------------------------
@@ -38,6 +40,12 @@ class BlockNode
 	# 
 	#-----------------------------------------------------------
 	def printAST(indent="")
+
+		if not SemanticErrors.empty?
+			return printSemanticErrors()
+		end
+
+
 		puts "#{indent}BEGIN"
 		if @statements
 				puts "#{indent+"  "}SYMBOL TABLE"
@@ -120,14 +128,17 @@ class StatementNode
 
 		# Case: Variable has been declared before
 		if table.isMember(@identifier.value)
-			puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: La variable '#{@identifier.value}' ya ha sido declarada en este alcance"
+			SemanticErrors.push("Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: La variable '#{@identifier.value}' ya ha sido declarada en este alcance")
 			return
 		end
 
 		# Variable hasnt been declared before, insert in table proper way
 		if not @size and not @value
-			table.insert(@identifier.value, @type.type, nil, nil)
-			return
+			if @type.type == "int"
+				return table.insert(@identifier.value, @type.type, 0, nil)
+			elsif @type.type == "bool"
+				return table.insert(@identifier.value, @type.type, "false", nil)
+			end
 		end
 
 		# Checking for variables of type bool a = false;
@@ -148,9 +159,7 @@ class StatementNode
 
 			if @value.check(table) != "bits"
 				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tipo #{@type.type} de la declaración no coincide con el tipo de la asignación"
-				return table.insert(@identifier.value, @type.type, @size.value, @value.value)
-			else
-
+				return table.insert(@identifier.value, @type.type, @size.value, @value.value)			
 			end
 
 		end
@@ -162,7 +171,11 @@ class StatementNode
 			elsif @size.check(table) != "int"
 				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tamaño debe ser un entero"
 			else
-				return table.insert(@identifier.value, @type.type, nil, @size.value)
+					val = "0b"
+					for n in 1..Integer(@size.value.value)
+						val = val + "0"
+					end
+					return table.insert(@identifier.value, @type.type, val, @size.value.value)
 			end
 		end
 
@@ -186,7 +199,6 @@ class InstructionsNode
 	end
 
 	def check(parentTable)
-		puts @instructionNode
 		@instructionsNode.check(parentTable)
 		@instructionNode.check(parentTable)
 	end
@@ -255,7 +267,7 @@ class InputNode
 
 	def check(table)
 		if not table.lookup(@identifier.value)
-			puts "Error: la variable #{@identifier.value} no fue declarada."
+			puts "Error en ĺínea #{@identifier.locationinfo[:line]}, columna #{@identifier.locationinfo[:column]}: la variable #{@identifier.value} no fue declarada."
 		end
 	end
 
@@ -406,20 +418,20 @@ class ForLoopNode
 		table.insert(id, val.check(table), val, nil)
 
 		if @exp1.check(table) != "bool"
-			puts "Error en línea #{findLeftMostOperand(@exp1).value.locationinfo[:line]}, columna #{findLeftMostOperand(@exp1).value.locationinfo[:column]}: El tipo de la expresión debe ser booleano"
+			puts "Error en línea #{findLeftMostOperand(@exp1).value.locationinfo[:line]}, columna #{findLeftMostOperand(@exp1).value.locationinfo[:column]}: El tipo de la condición debe ser booleano"
 			return 
 		end
 
 		# identifier is not itself a symbol for this scope.
 		table.delete(id)
 
+		if @exp2.check(table) != "int"
+			puts "Error en línea #{findLeftMostOperand(@exp2).value.locationinfo[:line]}, columna #{findLeftMostOperand(@exp2).value.locationinfo[:column]}: El tipo de la expresión que actualiza la variable (paso) debe ser entero"
+		end
+
 		@instruction.check(table)
-
-		#puts @assignation.identifier.value
-		#puts @assignation.position.value
-	 	#puts @assignation.value.value.value
-
 	end
+
 end
 
 class ForbitsLoopNode
@@ -741,4 +753,8 @@ def findLeftMostOperand(leftOperand)
 			return leftOperand
 		end
 	end
+end
+
+def printSemanticErrors()
+	puts "hola"
 end
