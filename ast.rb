@@ -138,6 +138,8 @@ class StatementNode
 				return table.insert(@identifier.value, @type.type, 0, nil)
 			elsif @type.type == "bool"
 				return table.insert(@identifier.value, @type.type, "false", nil)
+			else
+				return SemanticErrors.push("Error en la línea #{@identifier.locationinfo[:line]}, column #{@identifier.locationinfo[:column]}: La declaración de tipo bits debe tener un tamaño")
 			end
 		end
 
@@ -171,11 +173,11 @@ class StatementNode
 			elsif @size.check(table) != "int"
 				SemanticErrors.push("Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tamaño debe ser un entero")
 			else
-					val = "0b"
-					for n in 1..Integer(@size.value.value)
-						val = val + "0"
-					end
-					return table.insert(@identifier.value, @type.type, val, @size.value.value)
+					#val = "0b"
+					#for n in 1..Integer(@size.value.value)
+					#	val = val + "0"
+					#end
+					return table.insert(@identifier.value, @type.type, nil, @size.value)
 			end
 		end
 
@@ -232,7 +234,7 @@ class AssignationNode
 
 		if not @position
 			if not table.lookup(@identifier.value)
-				SemanticErrors.push("No esta declarada. No puedes asignar")
+				SemanticErrors.push("Error: La variable #{@identifier.value} no esta declarada.")
 				return
 			end
 
@@ -456,6 +458,14 @@ class ForbitsLoopNode
 		puts "#{indent+"  "}INSTRUCTION:"
 		@instruction.printAST(indent+"    ")
 	end
+
+	def check(table)
+		if @exp1.check(table) != "bits"
+			puts "Error en línea #{@identifier.locationinfo[:line]}: La expresión no es de tipo bits"
+		end
+		@instruction.check(table)
+	end
+
 end
 
 class RepeatWhileLoopNode
@@ -640,7 +650,7 @@ class UnaryExpressionNode
 	def initialize(operand, operator)
 		@operand = operand
 		@operator = operator
-		@value = "#{operator} #{operand}"
+		@value = "#{operator} #{operand.value}"
 	
 		@validUnaryOperations = {
 
@@ -668,7 +678,7 @@ class UnaryExpressionNode
 				type = table.find(@operand.value.value).type
 			else
 				operandoDeclarado = false
-				SemanticErrors.push("Error: El operando #{@rightoperand.value.value} no fue declarado")
+				SemanticErrors.push("Error: El operando #{@operand.value.value} no fue declarado")
 				return
 			end
 		else
