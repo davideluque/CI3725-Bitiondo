@@ -54,9 +54,6 @@ class Sym
 
 	def to_s
 		s = "Name: #{@name}, Type: #{@type}"
-		if @value
-			s = s + " Value: #{@value}"
-		end
 		return s
 	end
 
@@ -140,6 +137,14 @@ class SymbolTable
 		end
 
 		return false
+	end
+
+	def printSymTab(indent)
+
+		@symTable.each do |key, value|
+			puts "#{indent} #{value.to_s}"
+		end 
+		
 	end
 
 end

@@ -31,15 +31,17 @@ class BlockNode
 	def initialize(statements, instructions)
 		@statements = statements
 		@instructions = instructions
+		@t = nil
 	end
 
-#-----------------------------------------------------------
-# 
-#-----------------------------------------------------------
+	#-----------------------------------------------------------
+	# 
+	#-----------------------------------------------------------
 	def printAST(indent="")
 		puts "#{indent}BEGIN"
 		if @statements
-			@statements.printAST(indent+"  ")
+				puts "#{indent+"  "}SYMBOL TABLE"
+				@t.printSymTab(indent+"    ")
 		end
 		if @instructions
 			@instructions.printAST(indent+"  ")
@@ -48,18 +50,19 @@ class BlockNode
 		return
 	end
 
-#-----------------------------------------------------------
-# 
-#-----------------------------------------------------------
+	#-----------------------------------------------------------
+	# 
+	#-----------------------------------------------------------
 	def check(parentTable)
-		t = SymbolTable.new(parentTable)
+
+		@t = SymbolTable.new(parentTable)
 		
 		if @statements
-			@statements.check(t)
+			@statements.check(@t)
 		end
 
 		if @instructions
-			@instructions.check(t)
+			@instructions.check(@t)
 		end
 
 	end
@@ -114,7 +117,7 @@ class StatementNode
 	end
 
 	def check(table)
-		
+
 		# Case: Variable has been declared before
 		if table.isMember(@identifier.value)
 			puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: La variable '#{@identifier.value}' ya ha sido declarada en este alcance"
@@ -231,6 +234,7 @@ class AssignationNode
 
 		if table.find(@identifier.value).type != @value.check(table)
 			puts "Tipos que no coinciden"
+			puts "#{@value.check(table)}"
 			return
 		end
 

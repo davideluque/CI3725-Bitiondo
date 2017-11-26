@@ -85,6 +85,7 @@ def main
 		ast.check(nil)
 		#ast.hasSemanticErrors(?)
 		#ast. Rescue
+		ast.printAST
 	end
 
 end
