@@ -21,6 +21,8 @@
 
 # For more information about the meaning of each node, see the file parser.y
 
+SemanticErrors = []
+
 #-----------------------------------------------------------
 #
 #-----------------------------------------------------------
@@ -38,6 +40,12 @@ class BlockNode
 	# 
 	#-----------------------------------------------------------
 	def printAST(indent="")
+
+		if not SemanticErrors.empty?
+			return printSemanticErrors()
+		end
+
+
 		puts "#{indent}BEGIN"
 		if @statements
 				puts "#{indent+"  "}SYMBOL TABLE"
@@ -120,13 +128,12 @@ class StatementNode
 
 		# Case: Variable has been declared before
 		if table.isMember(@identifier.value)
-			puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: La variable '#{@identifier.value}' ya ha sido declarada en este alcance"
+			SemanticErrors.push("Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: La variable '#{@identifier.value}' ya ha sido declarada en este alcance")
 			return
 		end
 
 		# Variable hasnt been declared before, insert in table proper way
 		if not @size and not @value
-			puts @type.type
 			if @type.type == "int"
 				return table.insert(@identifier.value, @type.type, 0, nil)
 			elsif @type.type == "bool"
@@ -260,7 +267,7 @@ class InputNode
 
 	def check(table)
 		if not table.lookup(@identifier.value)
-			puts "Error: la variable #{@identifier.value} no fue declarada."
+			puts "Error en ĺínea #{@identifier.locationinfo[:line]}, columna #{@identifier.locationinfo[:column]}: la variable #{@identifier.value} no fue declarada."
 		end
 	end
 
@@ -423,8 +430,8 @@ class ForLoopNode
 		end
 
 		@instruction.check(table)
-
 	end
+
 end
 
 class ForbitsLoopNode
@@ -746,4 +753,8 @@ def findLeftMostOperand(leftOperand)
 			return leftOperand
 		end
 	end
+end
+
+def printSemanticErrors()
+	puts "hola"
 end
