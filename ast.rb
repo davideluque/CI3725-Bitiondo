@@ -138,6 +138,8 @@ class StatementNode
 				return table.insert(@identifier.value, @type.type, 0, nil)
 			elsif @type.type == "bool"
 				return table.insert(@identifier.value, @type.type, "false", nil)
+			else
+				return SemanticErrors.push("Error en la línea #{@identifier.locationinfo[:line]}, column #{@identifier.locationinfo[:column]}: La declaración de tipo bits debe tener un tamaño")
 			end
 		end
 
@@ -232,7 +234,7 @@ class AssignationNode
 
 		if not @position
 			if not table.lookup(@identifier.value)
-				puts "No esta declarada. No puedes asignar"
+				puts "Error: La variable #{@identifier.value} no esta declarada."
 				return
 			end
 
@@ -457,6 +459,14 @@ class ForbitsLoopNode
 		puts "#{indent+"  "}INSTRUCTION:"
 		@instruction.printAST(indent+"    ")
 	end
+
+	def check(table)
+		if @exp1.check(table) != "bits"
+			puts "Error en línea #{@identifier.locationinfo[:line]}: La expresión no es de tipo bits"
+		end
+		@instruction.check(table)
+	end
+
 end
 
 class RepeatWhileLoopNode
@@ -642,7 +652,7 @@ class UnaryExpressionNode
 	def initialize(operand, operator)
 		@operand = operand
 		@operator = operator
-		@value = "#{operator} #{operand}"
+		@value = "#{operator} #{operand.value}"
 	
 		@validUnaryOperations = {
 
@@ -670,7 +680,7 @@ class UnaryExpressionNode
 				type = table.find(@operand.value.value).type
 			else
 				operandoDeclarado = false
-				puts "Error: El operando #{@rightoperand.value.value} no fue declarado"
+				puts "Error: El operando #{@operand.value.value} no fue declarado"
 				return
 			end
 		else
