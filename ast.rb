@@ -150,7 +150,7 @@ class StatementNode
 					return table.insert(@identifier.value, @type.type, @value.value.value, nil)
 				end 
 			else
-				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tipo #{@type.type} de la declaración no coincide con el tipo de la asignación"
+				SemanticErrors.push("Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tipo #{@type.type} de la declaración no coincide con el tipo de la asignación")
 				return			
 			end
 		end
@@ -158,7 +158,7 @@ class StatementNode
 		if @size and @value
 
 			if @value.check(table) != "bits"
-				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tipo #{@type.type} de la declaración no coincide con el tipo de la asignación"
+				SemanticErrors.push("Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tipo #{@type.type} de la declaración no coincide con el tipo de la asignación")
 				return table.insert(@identifier.value, @type.type, @size.value, @value.value)			
 			end
 
@@ -166,10 +166,10 @@ class StatementNode
 
 		if @size
 			if @type.value != "bits"
-				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: La variable #{@identifier.value} no puede ser declarada con el tipo #{@type.type}"
+				SemanticErrors.push("Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: La variable #{@identifier.value} no puede ser declarada con el tipo #{@type.type}")
 				return
 			elsif @size.check(table) != "int"
-				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tamaño debe ser un entero"
+				SemanticErrors.push("Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tamaño debe ser un entero")
 			else
 					val = "0b"
 					for n in 1..Integer(@size.value.value)
@@ -232,20 +232,19 @@ class AssignationNode
 
 		if not @position
 			if not table.lookup(@identifier.value)
-				puts "No esta declarada. No puedes asignar"
+				SemanticErrors.push("No esta declarada. No puedes asignar")
 				return
 			end
 
 		end
 
 		if @position and @position.check(table) != "int"
-			puts "La posicion no es un entero"
+			SemanticErrors.push("La posicion no es un entero")
 			return
 		end
 
 		if table.find(@identifier.value).type != @value.check(table)
-			puts "Tipos que no coinciden"
-			puts "#{@value.check(table)}"
+			SemanticErrors.push("Tipos que no coinciden")
 			return
 		end
 
@@ -267,7 +266,7 @@ class InputNode
 
 	def check(table)
 		if not table.lookup(@identifier.value)
-			puts "Error en ĺínea #{@identifier.locationinfo[:line]}, columna #{@identifier.locationinfo[:column]}: la variable #{@identifier.value} no fue declarada."
+			SemanticErrors.push("Error en ĺínea #{@identifier.locationinfo[:line]}, columna #{@identifier.locationinfo[:column]}: la variable #{@identifier.value} no fue declarada.")
 		end
 	end
 
@@ -339,14 +338,14 @@ class ConditionalNode
 		if @expression.check(table) != "bool"
 
 			if @expression.instance_of? BinExpressionNode
-				puts "Error en línea #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'"
+				SemanticErrors.push("Error en línea #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'")
 			elsif @expression.instance_of? UnaryExpressionNode
-				puts "Error en línea #{@expression.operand.value.locationinfo[:line]}, columna #{@expression.operand.value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'"
+				SemanticErrors.push("Error en línea #{@expression.operand.value.locationinfo[:line]}, columna #{@expression.operand.value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'")
 			elsif
 				@expression.instance_of? ConstExpressionNode
-					puts "Error en línea #{@expression.value.locationinfo[:line]}, columna #{@expression.value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'"
+					SemanticErrors.push("Error en línea #{@expression.value.locationinfo[:line]}, columna #{@expression.value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'")
 			else
-				puts "Instruccion 'if' espera expresion de tipo 'bool'"
+				SemanticErrors.push("Instruccion 'if' espera expresion de tipo 'bool'")
 			end
 		end
 	end
@@ -389,20 +388,20 @@ class ForLoopNode
 
 		# Case: Assignation is like b[0] = 1;
 		if pos
-			puts "Error en línea #{@assignation.identifier.locationinfo[:line]}, columna #{@assignation.identifier.locationinfo[:column]}: Inicialización de #{id} incorrecta."
+			SemanticErrors.push("Error en línea #{@assignation.identifier.locationinfo[:line]}, columna #{@assignation.identifier.locationinfo[:column]}: Inicialización de #{id} incorrecta.")
 			return
 		end
 
 		# Case: Variable has been declared before
 		if t.lookup(id)
-			puts "Error: Variable #{id} declarada anteriormente"
+			SemanticErrors.push("Error: Variable #{id} declarada anteriormente")
 			return
 		end
 
 
 		# Case: assignation is not integer
 		if val.check(table) != "int"
-			puts "Error en el for, la asignación no es un entero"
+			SemanticErrors.push("Error en el for, la asignación no es un entero")
 			return
 		#elsif val.instance_of? BinExpressionNode
 
@@ -418,7 +417,7 @@ class ForLoopNode
 		table.insert(id, val.check(table), val, nil)
 
 		if @exp1.check(table) != "bool"
-			puts "Error en línea #{findLeftMostOperand(@exp1).value.locationinfo[:line]}, columna #{findLeftMostOperand(@exp1).value.locationinfo[:column]}: El tipo de la condición debe ser booleano"
+			SemanticErrors.push("Error en línea #{findLeftMostOperand(@exp1).value.locationinfo[:line]}, columna #{findLeftMostOperand(@exp1).value.locationinfo[:column]}: El tipo de la condición debe ser booleano")
 			return 
 		end
 
@@ -426,7 +425,7 @@ class ForLoopNode
 		table.delete(id)
 
 		if @exp2.check(table) != "int"
-			puts "Error en línea #{findLeftMostOperand(@exp2).value.locationinfo[:line]}, columna #{findLeftMostOperand(@exp2).value.locationinfo[:column]}: El tipo de la expresión que actualiza la variable (paso) debe ser entero"
+			SemanticErrors.push("Error en línea #{findLeftMostOperand(@exp2).value.locationinfo[:line]}, columna #{findLeftMostOperand(@exp2).value.locationinfo[:column]}: El tipo de la expresión que actualiza la variable (paso) debe ser entero")
 		end
 
 		@instruction.check(table)
@@ -484,14 +483,14 @@ class RepeatWhileLoopNode
 		if @expression.check(table) != "bool"
 
 			if @expression.instance_of? BinExpressionNode
-				puts "Error en línea #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'"
+				SemanticErrors.push("Error en línea #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
 			elsif @expression.instance_of? UnaryExpressionNode
-				puts "Error en línea #{@expression.operand.value.locationinfo[:line]}, columna #{@expression.operand.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'"
+				SemanticErrors.push("Error en línea #{@expression.operand.value.locationinfo[:line]}, columna #{@expression.operand.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
 			elsif
 				@expression.instance_of? ConstExpressionNode
-					puts "Error en línea #{@expression.value.locationinfo[:line]}, columna #{@expression.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'"
+					SemanticErrors.push("Error en línea #{@expression.value.locationinfo[:line]}, columna #{@expression.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
 			else
-				puts "Instruccion 'while' espera expresion de tipo 'bool'"
+				SemanticErrors.push("Instruccion 'while' espera expresion de tipo 'bool'")
 			end
 		end		
 	end
@@ -517,14 +516,14 @@ class WhileLoopNode
 		if @expression.check(table) != "bool"
 
 			if @expression.instance_of? BinExpressionNode
-				puts "Error en línea #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'"
+				SemanticErrors.push("Error en línea #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
 			elsif @expression.instance_of? UnaryExpressionNode
-				puts "Error en línea #{@expression.operand.value.locationinfo[:line]}, columna #{@expression.operand.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'"
+				SemanticErrors.push("Error en línea #{@expression.operand.value.locationinfo[:line]}, columna #{@expression.operand.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
 			elsif
 				@expression.instance_of? ConstExpressionNode
-					puts "Error en línea #{@expression.value.locationinfo[:line]}, columna #{@expression.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'"
+					SemanticErrors.push("Error en línea #{@expression.value.locationinfo[:line]}, columna #{@expression.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
 			else
-				puts "Instruccion 'while' espera expresion de tipo 'bool'"
+				SemanticErrors.push("Instruccion 'while' espera expresion de tipo 'bool'")
 			end
 		end
 	end
@@ -590,10 +589,9 @@ class BinExpressionNode
 		if @leftoperand.check(table) == "variable"
 			if table.lookup(@leftoperand.value.value)
 				leftType = table.find(@leftoperand.value.value).type
-				puts leftType
 			else
 				operandoDeclarado = false
-				puts "Error en línea #{findLeftMostOperand(@leftoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@leftoperand).value.locationinfo[:column]}: El operando #{@leftoperand.value.value} no fue declarado"
+				SemanticErrors.push("Error en línea #{findLeftMostOperand(@leftoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@leftoperand).value.locationinfo[:column]}: El operando #{@leftoperand.value.value} no fue declarado")
 				return
 			end
 		else
@@ -605,7 +603,7 @@ class BinExpressionNode
 				rightType = table.find(@rightoperand.value.value).type
 			else
 				operandoDeclarado = false
-				puts "Error en línea #{findLeftMostOperand(@rightoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@rightoperand).value.locationinfo[:column]}: El operando #{@rightoperand.value.value} no fue declarado"
+				SemanticErrors.push("Error en línea #{findLeftMostOperand(@rightoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@rightoperand).value.locationinfo[:column]}: El operando #{@rightoperand.value.value} no fue declarado")
 				return
 			end
 		else
@@ -621,14 +619,14 @@ class BinExpressionNode
 		end
 
 		if @leftoperand.instance_of? BinExpressionNode
-			puts "Error en línea #{findLeftMostOperand(@leftoperand).value.locationinfo[:line]}: #{@operator} no puede funcionar con estos tipos"
+			SemanticErrors.push("Error en línea #{findLeftMostOperand(@leftoperand).value.locationinfo[:line]}: #{@operator} no puede funcionar con estos tipos")
 			return
 
 		elsif @leftoperand.instance_of? UnaryExpressionNode
-			puts "Error: #{@operator} no puede funcionar con estos tipos"
+			SemanticErrors.push("Error: #{@operator} no puede funcionar con estos tipos")
 			return
 		else
-			puts "Error en línea #{findLeftMostOperand(@leftoperand).value.locationinfo[:line]}, columna #{@leftoperand.value.locationinfo[:column]}: #{@operator} no puede funcionar con estos tipos"
+			SemanticErrors.push("Error en línea #{findLeftMostOperand(@leftoperand).value.locationinfo[:line]}, columna #{@leftoperand.value.locationinfo[:column]}: #{@operator} no puede funcionar con estos tipos")
 			return
 		end
 	end
@@ -670,7 +668,7 @@ class UnaryExpressionNode
 				type = table.find(@operand.value.value).type
 			else
 				operandoDeclarado = false
-				puts "Error: El operando #{@rightoperand.value.value} no fue declarado"
+				SemanticErrors.push("Error: El operando #{@rightoperand.value.value} no fue declarado")
 				return
 			end
 		else
@@ -685,11 +683,11 @@ class UnaryExpressionNode
 			end
 		end
 
-		puts "Error en línea #{@operand.value.locationinfo[:line]}, columna #{@operand.value.locationinfo[:column]}: #{@operator} no puede funcionar con estos tipos"
+		SemanticErrors.push("Error en línea #{@operand.value.locationinfo[:line]}, columna #{@operand.value.locationinfo[:column]}: #{@operator} no puede funcionar con estos tipos")
 		return
 
-		end
 	end
+end
 
 class ConstExpressionNode
 
