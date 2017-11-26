@@ -459,9 +459,15 @@ class ForbitsLoopNode
 	end
 
 	def check(table)
+		
 		if @exp1.check(table) != "bits"
 			SemanticErrors.push("Error en línea #{@identifier.locationinfo[:line]}: La expresión no es de tipo bits")
 		end
+
+
+		#table.insert()
+		#if
+		#end
 
 		@instruction.check(table)
 	end
@@ -744,6 +750,10 @@ class AccessNode
 		puts "#{indent+"  "}variable: #{@identifier.value}"
 		puts "#{indent+"  "}position:"
 		@expression.printAST(indent+"    ")
+	end
+
+	def check()
+		puts "check access node"
 	end
 
 end
