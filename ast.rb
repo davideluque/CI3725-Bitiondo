@@ -173,11 +173,11 @@ class StatementNode
 			elsif @size.check(table) != "int"
 				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tamaño debe ser un entero"
 			else
-					val = "0b"
-					for n in 1..Integer(@size.value.value)
-						val = val + "0"
-					end
-					return table.insert(@identifier.value, @type.type, val, @size.value.value)
+					#val = "0b"
+					#for n in 1..Integer(@size.value.value)
+					#	val = val + "0"
+					#end
+					return table.insert(@identifier.value, @type.type, nil, @size.value)
 			end
 		end
 
