@@ -71,10 +71,10 @@ def main
 	begin
 		parser = Parser.new(lexer)
 		ast = parser.parse
-		if flags.include? "-a" then
-			ast.printAST
-			return
-		end
+		# if flags.include? "-a" then
+		# 	ast.printAST
+		# 	return
+		# end
 	rescue SyntacticError => e
 		puts e
 		return
