@@ -764,7 +764,7 @@ def findLeftMostOperand(leftOperand)
 end
 
 def printSemanticErrors()
-	SemanticErrors.each do |SE|
-			puts SE
+	SemanticErrors.each do |se|
+			puts se
 		end
 end
