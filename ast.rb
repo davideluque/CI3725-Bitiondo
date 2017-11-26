@@ -152,9 +152,7 @@ class StatementNode
 
 			if @value.check(table) != "bits"
 				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tipo #{@type.type} de la declaración no coincide con el tipo de la asignación"
-				return table.insert(@identifier.value, @type.type, @size.value, @value.value)
-			else
-
+				return table.insert(@identifier.value, @type.type, @size.value, @value.value)			
 			end
 
 		end
