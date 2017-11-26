@@ -87,12 +87,26 @@ control de la identación.
 
 Para finalizar, el main del programa se encuentra en el archivo bitiondo.
 
+Etapa 3
+
+Después de haber implementado el analizador lexicográfico y sintáctico, en el cual se encuentra el archi-
+vo ast.rb que ejecuta el árbol sintáctico, dicho archivo sirvió se modificó en etapa agregando la función
+check() para cada nodo del árbol. Esta, se encarga de verificar el uso correcto de los tipos.
+
+A su vez, se implementó una tabla de hash para la tabla de símbolos en que contiene la declaración de cada 
+identificador a través de objetos que tienen como atributos name, type, size y value.
+
+Finalmente, para la impresión de errores se creó una lista en la cual se fueron almacenando durante el che-
+queo.
+ 
 ESTADO ACTUAL DEL PROYECTO
 ----------------------------------------------------------------------------------------------------
-El programa que se comporta como un analizador lexicografico para el lenguaje Bitiondo, cumple con 
-todas las funcionalidades requeridas para la etapa 1 y la etapa 2.
+El programa que se comporta como un analizador lexicografico y sintáctico para el lenguaje Bitiondo, 
+cumple con todas las funcionalidades requeridas para la etapa 1 y la etapa 2.
+
+Sin embargo, para la etapa 3 que corresponde al analizador semático no.
 
 
 PROBLEMAS PRESENTES
 ----------------------------------------------------------------------------------------------------
-No posee problemas.
+Las validaciones del outputln y forbits no funcionan correctamente.
