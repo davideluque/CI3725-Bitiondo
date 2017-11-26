@@ -27,7 +27,7 @@ def main
 		puts "Syntax: ./bitiondo file [flag]"
 		puts "Flags:"
 		puts "  -t: Print token list"
-		puts "  -a: Print abstract syntax tree"
+		#puts "  -a: Print abstract syntax tree"
 		return
 	end
 
