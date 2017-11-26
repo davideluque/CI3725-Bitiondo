@@ -151,7 +151,8 @@ class Parser
 		# Expression rule. Defines all allowed expressions in bitiondo
 		# Binary, Unary and Constant expressions. One especial named "ACCESSOR"
 		EXPRESSION
-		: EXPRESSION '*' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
+		: '(' EXPRESSION ')'					{result = val[1]}
+		| EXPRESSION '*' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'MULTIPLICATION')}
 		| EXPRESSION '/' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'DIVISION')}
 		| EXPRESSION '%' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'MODULUS')}
 		| EXPRESSION '+' EXPRESSION 	{result = BinExpressionNode.new(val[0], val[2], 'PLUS')}
