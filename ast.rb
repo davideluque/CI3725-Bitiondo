@@ -241,12 +241,12 @@ class AssignationNode
 		end
 
 		if @position and @position.check(table) != "int"
-			SemanticErrors.push("La posicion no es un entero")
+			SemanticErrors.push("Error en la línea #{@identifier.locationinfo[:line]}, columna #{@identifier.locationinfo[:column]}: La posición de la declaración no es un entero")
 			return
 		end
 
 		if table.find(@identifier.value).type != @value.check(table)
-			SemanticErrors.push("Tipos que no coinciden")
+			SemanticErrors.push("Error en la línea #{@identifier.locationinfo[:line]}, columna #{@identifier.locationinfo[:column]}: El tipo de la declaración no coincide con el de la asignación")
 			return
 		end
 
@@ -396,20 +396,15 @@ class ForLoopNode
 
 		# Case: Variable has been declared before
 		if t.lookup(id)
-			SemanticErrors.push("Error: Variable #{id} declarada anteriormente")
+			SemanticErrors.push("Error en línea #{@assignation.identifier.locationinfo[:line]}: Variable #{id} declarada anteriormente")
 			return
 		end
 
 
 		# Case: assignation is not integer
 		if val.check(table) != "int"
-			SemanticErrors.push("Error en el for, la asignación no es un entero")
+			SemanticErrors.push("Error en línea #{@assignation.identifier.locationinfo[:line]}: La asignación de la inicialización no es un entero")
 			return
-		#elsif val.instance_of? BinExpressionNode
-
-			#t.lookup(val.value.value)
-		#	puts "Variable asignada en el for no declarada"
-		#	return
 		end
 
 		# After making sure that the identifier was properly declarated 
@@ -428,6 +423,10 @@ class ForLoopNode
 
 		if @exp2.check(table) != "int"
 			SemanticErrors.push("Error en línea #{findLeftMostOperand(@exp2).value.locationinfo[:line]}, columna #{findLeftMostOperand(@exp2).value.locationinfo[:column]}: El tipo de la expresión que actualiza la variable (paso) debe ser entero")
+		end
+
+		if @instruction.instance_of? AssignationNode and @instruction.identifier.value == id
+			return SemanticErrors.push("Error en línea #{@instruction.identifier.locationinfo[:line]}, columna #{@instruction.identifier.locationinfo[:column]}: No es posible modificar la variable de iteración '#{id}' ")
 		end
 
 		@instruction.check(table)
@@ -461,8 +460,9 @@ class ForbitsLoopNode
 
 	def check(table)
 		if @exp1.check(table) != "bits"
-			puts "Error en línea #{@identifier.locationinfo[:line]}: La expresión no es de tipo bits"
+			SemanticErrors.push("Error en línea #{@identifier.locationinfo[:line]}: La expresión no es de tipo bits")
 		end
+
 		@instruction.check(table)
 	end
 
