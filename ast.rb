@@ -123,8 +123,12 @@ class StatementNode
 
 		# Variable hasnt been declared before, insert in table proper way
 		if not @size and not @value
-			table.insert(@identifier.value, @type.type, nil, nil)
-			return
+			puts @type.type
+			if @type.type == "int"
+				return table.insert(@identifier.value, @type.type, 0, nil)
+			elsif @type.type == "bool"
+				return table.insert(@identifier.value, @type.type, "false", nil)
+			end
 		end
 
 		# Checking for variables of type bool a = false;
@@ -159,7 +163,11 @@ class StatementNode
 			elsif @size.check(table) != "int"
 				puts "Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tamaño debe ser un entero"
 			else
-				return table.insert(@identifier.value, @type.type, nil, @size.value)
+					val = "0b"
+					for n in 1..Integer(@size.value.value)
+						val = val + "0"
+					end
+					return table.insert(@identifier.value, @type.type, val, @size.value.value)
 			end
 		end
 
@@ -183,7 +191,6 @@ class InstructionsNode
 	end
 
 	def check(parentTable)
-		puts @instructionNode
 		@instructionsNode.check(parentTable)
 		@instructionNode.check(parentTable)
 	end
@@ -402,18 +409,18 @@ class ForLoopNode
 		table.insert(id, val.check(table), val, nil)
 
 		if @exp1.check(table) != "bool"
-			puts "Error en línea #{findLeftMostOperand(@exp1).value.locationinfo[:line]}, columna #{findLeftMostOperand(@exp1).value.locationinfo[:column]}: El tipo de la expresión debe ser booleano"
+			puts "Error en línea #{findLeftMostOperand(@exp1).value.locationinfo[:line]}, columna #{findLeftMostOperand(@exp1).value.locationinfo[:column]}: El tipo de la condición debe ser booleano"
 			return 
 		end
 
 		# identifier is not itself a symbol for this scope.
 		table.delete(id)
 
-		@instruction.check(table)
+		if @exp2.check(table) != "int"
+			puts "Error en línea #{findLeftMostOperand(@exp2).value.locationinfo[:line]}, columna #{findLeftMostOperand(@exp2).value.locationinfo[:column]}: El tipo de la expresión que actualiza la variable (paso) debe ser entero"
+		end
 
-		#puts @assignation.identifier.value
-		#puts @assignation.position.value
-	 	#puts @assignation.value.value.value
+		@instruction.check(table)
 
 	end
 end
