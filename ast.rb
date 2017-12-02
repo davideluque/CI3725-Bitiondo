@@ -358,7 +358,6 @@ class ExpressionsNode
 				return SemanticErrors.push("Error aqui: La variable #{@expressionNode.value.value} no fue declarada")
 			end
 		end
-
 	end
 
 end
