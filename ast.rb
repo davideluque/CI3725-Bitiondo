@@ -214,8 +214,16 @@ class StatementNode
 	# en la tabla de símbolos una vez es interpretado el valor de su tamaño 
 	#--------------------------------------------------------------------------#
 	def interprete
-		if @size a
-			@size.interprete
+		if @size
+			bits_decl_size = @size.interprete
+			if @value
+				puts bits_decl_size
+				puts @value.value.length
+				if bits_decl_size == @value.value.length
+					# ACTUALIZAR EL ELEMENTO EN LA TS
+					#table.insert
+				end
+		end
 	end
 
 end
