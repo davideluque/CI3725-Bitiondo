@@ -160,20 +160,21 @@ class StatementNode
 		if @size and @value
 
 			if @value.check(table) != "bits"
-				SemanticErrors.push("Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tipo #{@type.type} de la declaración no coincide con el tipo de la asignación")
-				return
+				return SemanticErrors.push("Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tipo #{@type.type} de la declaración no coincide con el tipo de la asignación")
+				
+			elsif @size.check(table) != "int"
+				return SemanticErrors.push("Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tamaño de identificador tipo bits debe ser un entero")
 			else
 				return table.insert(@identifier.value, @type.type, @size.value, @value.value)			
 			end
 
 		end
 
-		if @size
+		if @size 
 			if @type.value != "bits"
 				SemanticErrors.push("Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: La variable #{@identifier.value} no puede ser declarada con el tipo #{@type.type}")
-				return
 			elsif @size.check(table) != "int"
-				SemanticErrors.push("Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tamaño debe ser un entero")
+				SemanticErrors.push("Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tamaño de identificador tipo bits debe ser un entero")
 			else
 					#val = "0b"
 					#for n in 1..Integer(@size.value.value)
@@ -234,12 +235,9 @@ class AssignationNode
 
 	def check(table)
 
-		if not @position
-			if not table.lookup(@identifier.value)
-				SemanticErrors.push("Error: La variable #{@identifier.value} no esta declarada.")
-				return
-			end
-
+		if not table.lookup(@identifier.value)
+			SemanticErrors.push("Error: La variable #{@identifier.value} no esta declarada.")
+			return
 		end
 
 		if @position and @position.check(table) != "int"
@@ -290,7 +288,7 @@ class OutputNode
 	end
 
 	def check(table)
-	 @expressions.check(table)
+		@expressions.check(table)
 	end
 
 end
@@ -313,7 +311,14 @@ class ExpressionsNode
 	def check(table)
 		@expressionsNode.check(table)
 		@expressionNode.check(table)
-		return "Varias"
+
+		if @expressionNode.check(table) == "variable"
+			puts @expressionNode.value.value
+			if !table.lookup(@expressionNode.value.value) 
+				return SemanticErrors.push("Error aqui: La variable #{@expressionNode.value.value} no fue declarada")
+			end
+		end
+
 	end
 
 end
@@ -347,11 +352,14 @@ class ConditionalNode
 				SemanticErrors.push("Error en línea #{@expression.operand.value.locationinfo[:line]}, columna #{@expression.operand.value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'")
 			elsif
 				@expression.instance_of? ConstExpressionNode
-					SemanticErrors.push("Error en línea #{@expression.value.locationinfo[:line]}, columna #{@expression.value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'")
+				SemanticErrors.push("Error en línea #{@expression.value.locationinfo[:line]}, columna #{@expression.value.locationinfo[:column]}: Instrucción 'if' espera expresion de tipo 'bool'")
 			else
-				SemanticErrors.push("Instruccion 'if' espera expresion de tipo 'bool'")
+				SemanticErrors.push("Error en línea #{@expression.value.locationinfo[:line]}, columna #{@expression.value.locationinfo[:column]}: Instruccion 'if' espera expresion de tipo 'bool'")
 			end
 		end
+
+		@ins1.check(table)
+		if @ins2 then @ins2.check(table) end
 	end
 
 end
@@ -466,11 +474,6 @@ class ForbitsLoopNode
 			SemanticErrors.push("Error en línea #{@identifier.locationinfo[:line]}: La expresión no es de tipo bits")
 		end
 
-
-		#table.insert()
-		#if
-		#end
-
 		@instruction.check(table)
 	end
 
@@ -510,7 +513,13 @@ class RepeatWhileLoopNode
 			else
 				SemanticErrors.push("Instruccion 'while' espera expresion de tipo 'bool'")
 			end
-		end		
+		end
+
+		@ins1.check(table)	
+
+		if @ins2
+			@ins2.check(table)
+		end	
 	end
 
 end
@@ -544,6 +553,8 @@ class WhileLoopNode
 				SemanticErrors.push("Instruccion 'while' espera expresion de tipo 'bool'")
 			end
 		end
+
+		@instruction.check(table)
 	end
 end
 
@@ -742,20 +753,35 @@ end
 
 class AccessNode
 
-	def initialize(identifier, expression)
-		@identifier = identifier
-		@expression = expression
+	def initialize(exp1, exp2)
+		@exp1 = exp1
+		@exp2 = exp2
 	end
 
 	def printAST(indent)
 		puts "#{indent}ACCESSOR"
-		puts "#{indent+"  "}variable: #{@identifier.value}"
+		puts "#{indent+"  "}variable: #{@exp1.value.value}"
 		puts "#{indent+"  "}position:"
-		@expression.printAST(indent+"    ")
+		@exp2.printAST(indent+"    ")
 	end
 
-	def check()
-		puts "check access node"
+	def check(table)
+
+		if @exp1.check(table) == "variable"
+			if !table.lookup(@exp1.value)
+				return SemanticErrors.push("Error: La variable #{@exp1.value.value} no fue declarada")
+			end
+
+		else 
+			if  @exp1.check(table) != "bits" 
+				return SemanticErrors.push("Error en línea #{@exp1.value.locationinfo[:line]}, columna #{@exp1.value.locationinfo[:column]}: La variable #{@exp1.value.value} no es tipo bits")
+
+			else @exp2.check(table) != "int"
+				return SemanticErrors.push("Error en línea #{@exp1.value.locationinfo[:line]}, columna #{@exp1.value.locationinfo[:column]}:: El tamaño de la variable #{@exp1.value.value} de tipo bits recibe un int")
+			end
+
+		end
+ 
 	end
 
 end
