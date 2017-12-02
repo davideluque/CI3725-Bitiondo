@@ -466,85 +466,110 @@ class ForbitsLoopNode
 			SemanticErrors.push("Error en línea #{@identifier.locationinfo[:line]}: La expresión no es de tipo bits")
 		end
 
-
-		#table.insert()
-		#if
-		#end
-
 		@instruction.check(table)
+	end
+
+	def interprete
+		
 	end
 
 end
 
 class RepeatWhileLoopNode
 
-	def initialize(ins1, expression, ins2 =nil)
-		@expression = expression
-		@ins1 = ins1
-		@ins2 = ins2
+	def initialize(instruction1, condition, instruction2=nil)
+		@condition = condition
+		@instruction1 = instruction1
+		@instruction2 = instruction2
 	end
 
 	def printAST(indent)
 		puts "#{indent}REPEAT LOOP"
 		puts "#{indent+"  "}INSTRUCTION:"
-		@ins1.printAST(indent+"    ")
+		@instruction1.printAST(indent+"    ")
 		puts "#{indent+"  "}WHILE:"
-		@expression.printAST(indent+"    ")
-		if @ins2 then
+		@condition.printAST(indent+"    ")
+		if @instruction2 then
 			puts "#{indent+"  "}DO:"
-			@ins2.printAST(indent+"    ")			
+			@instruction2.printAST(indent+"    ")			
 		end
 
 	end
 
 	def check(table)
-		if @expression.check(table) != "bool"
+		if @condition.check(table) != "bool"
 
-			if @expression.instance_of? BinExpressionNode
-				SemanticErrors.push("Error en línea #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
-			elsif @expression.instance_of? UnaryExpressionNode
-				SemanticErrors.push("Error en línea #{@expression.operand.value.locationinfo[:line]}, columna #{@expression.operand.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
+			if @condition.instance_of? BinExpressionNode
+				SemanticErrors.push("Error en línea #{findLeftMostOperand(@condition.leftoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@condition.leftoperand).value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
+			elsif @condition.instance_of? UnaryExpressionNode
+				SemanticErrors.push("Error en línea #{@condition.operand.value.locationinfo[:line]}, columna #{@condition.operand.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
 			elsif
-				@expression.instance_of? ConstExpressionNode
-					SemanticErrors.push("Error en línea #{@expression.value.locationinfo[:line]}, columna #{@expression.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
+				@condition.instance_of? ConstExpressionNode
+					SemanticErrors.push("Error en línea #{@condition.value.locationinfo[:line]}, columna #{@condition.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
 			else
 				SemanticErrors.push("Instruccion 'while' espera expresion de tipo 'bool'")
 			end
 		end		
 	end
 
+	def interprete
+		if not @instruction2
+			while(@condition.interprete)
+				@instruction1.interprete
+			end
+		else
+			@instruction1.interprete
+			while(@condition.interprete)
+				@instruction2.interprete
+				@instruction1.interprete
+			end
+		end
+	end 
+
 end
 
 class WhileLoopNode
 
-	def initialize(expression, instruction)
-		@expression = expression
+	def initialize(condition, instruction)
+		@condition = condition
 		@instruction = instruction
 	end
 
 	def printAST(indent)
 		puts "#{indent}WHILE LOOP"
 		puts "#{indent+"  "}WHILE:"
-		@expression.printAST(indent+"    ")
+		@condition.printAST(indent+"    ")
 		puts "#{indent+"  "}DO:"
 		@instruction.printAST(indent+"    ")
 	end
 
 	def check(table)
-		if @expression.check(table) != "bool"
-
-			if @expression.instance_of? BinExpressionNode
-				SemanticErrors.push("Error en línea #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@expression.leftoperand).value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
-			elsif @expression.instance_of? UnaryExpressionNode
-				SemanticErrors.push("Error en línea #{@expression.operand.value.locationinfo[:line]}, columna #{@expression.operand.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
+		if @condition.check(table) != "bool"
+			if @condition.instance_of? BinExpressionNode
+				SemanticErrors.push("Error en línea #{findLeftMostOperand(@condition.leftoperand).value.locationinfo[:line]}, columna #{findLeftMostOperand(@condition.leftoperand).value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
+			elsif @condition.instance_of? UnaryExpressionNode
+				SemanticErrors.push("Error en línea #{@condition.operand.value.locationinfo[:line]}, columna #{@condition.operand.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
 			elsif
-				@expression.instance_of? ConstExpressionNode
-					SemanticErrors.push("Error en línea #{@expression.value.locationinfo[:line]}, columna #{@expression.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
+				@condition.instance_of? ConstExpressionNode
+					SemanticErrors.push("Error en línea #{@condition.value.locationinfo[:line]}, columna #{@condition.value.locationinfo[:column]}: Instrucción 'while' espera expresion de tipo 'bool'")
 			else
 				SemanticErrors.push("Instruccion 'while' espera expresion de tipo 'bool'")
 			end
 		end
 	end
+
+	#--------------------------------------------------------------------------#
+	# 								INTERPRETADOR DEL CICLO WHILE
+	# -> Interpreta la condición (es un booleano)
+	# -> Interpreta la instrucción
+	# -> Interpreta la condición en cada iteración para verificar la modificación 
+	#--------------------------------------------------------------------------#
+	def interprete
+		while(@condition.interprete) do 
+			@instruction.interprete
+		end
+	end
+
 end
 
 class BinExpressionNode
@@ -649,6 +674,75 @@ class BinExpressionNode
 		end
 	end
 
+	#--------------------------------------------------------------------------#
+	# 						INTERPRETADOR DE LAS EXPRESIONES BINARIAS
+	# '(' EXPRESSION ')'			 < Delimitador de expresiones >
+	#	EXPRESION '*' EXPRESION  < Multiplicación con enteros >
+	#	EXPRESION '/' EXPRESION  < División con enteros >
+	#	EXPRESION '%' EXPRESION  < Módulo con enteros >
+	#	EXPRESION '+' EXPRESION  < Suma con enteros >
+	#	EXPRESION '-' EXPRESION  < Resta con enteros >
+	#	EXPRESION '<<' EXPRESION < Shift a la izquierda de expresiones con bits >
+	#	EXPRESION '>>' EXPRESION < Shift a la derecha de expresiones con bits >
+	#	EXPRESION '<' EXPRESION  < Menor que  con enteros>
+	#	EXPRESION '<=' EXPRESION < Menor o igual que con enteros> 
+	#	EXPRESION '>' EXPRESION  < Mayor que entre con enteros >
+	#	EXPRESION '>=' EXPRESION < Mayor o igual que >
+	#	EXPRESION '==' EXPRESION < Equivalencia entre enteros, entre booleanos o entre bits >
+	#	EXPRESION '!=' EXPRESION < Inequivalencia entre enteros, entre booleanos, o entre bits >
+	#	EXPRESION '&' EXPRESION  < Conjunción entre bits >
+	#	EXPRESION '|' EXPRESION  < Disyuncíón entre bits >
+	#	EXPRESION '^' EXPRESION  < Exclusión entre bits >
+	#	EXPRESION '&&' EXPRESION < Conjunción entre booleanos >
+	#	EXPRESION '||' EXPRESION < Disyunción entre booleanos >
+	#--------------------------------------------------------------------------#
+	def interprete
+		if (@operator == "*") then 
+			return @leftoperand.interprete * @rightoperand.interprete
+		elsif (@operator == "/") then
+			#return @leftoperand.interprete / @rightoperand.interprete
+		elsif (@operator == "%") then
+			return @leftoperand.interprete % @rightoperand.interprete
+		elsif (@operator == "+") then
+			return @leftoperand.interprete + @rightoperand.interprete
+		elsif (@operator == "-") then
+			return @leftoperand.interprete - @rightoperand.interprete
+		elsif (@operator == "<<")
+			###################################################################
+			return @leftoperand.interprete << @rightoperand.interprete
+		elsif (@operator == ">>")
+			###################################################################
+			return @leftoperand.interprete >> @rightoperand.interprete
+		elsif (@operator == "<")
+			return @leftoperand.interprete < @rightoperand.interprete
+		elsif (@operator == "<=")
+			return @leftoperand.interprete <= @rightoperand.interprete
+		elsif (@operator == ">")
+			return @leftoperand.interprete > @rightoperand.interprete
+		elsif (@operator == ">=")
+			return @leftoperand.interprete >= @rightoperand.interprete
+		elsif (@operator == "==")
+			return @leftoperand.interprete == @rightoperand.interprete
+		elsif (@operator == "!=")
+			return @leftoperand.interprete != @rightoperand.interprete
+		elsif (@operator == "&")
+			#####################################################################
+			return @leftoperand.interprete & @rightoperand.interprete
+		elsif (@operator == "|")
+			#####################################################################
+			return @leftoperand.interprete | @rightoperand.interprete
+		elsif (@operator == "^")
+			#####################################################################
+			return @leftoperand.interprete ^ @rightoperand.interprete
+		elsif (@operator == "&&")
+			return @leftoperand.interprete && @rightoperand.interprete
+		elsif (@operator == "||")
+			return @leftoperand.interprete || @rightoperand.interprete
+		end
+
+		raise "Hubo un error al verificar una operación binaria"
+	end
+
 end
 
 class UnaryExpressionNode
@@ -678,7 +772,6 @@ class UnaryExpressionNode
 	end
 
 	def check(table)
-		
 		operandoDeclarado = true
 
 		if @operand.check(table) == "variable"
@@ -703,8 +796,29 @@ class UnaryExpressionNode
 
 		SemanticErrors.push("Error en línea #{@operand.value.locationinfo[:line]}, columna #{@operand.value.locationinfo[:column]}: #{@operator} no puede funcionar con estos tipos")
 		return
-
 	end
+
+	#--------------------------------------------------------------------------#
+	# 						INTERPRETADOR DE LAS EXPRESIONES UNARIAS 
+	#  '!' EXPRESION < Negación de booleanos >
+	#	 '~' EXPRESION < Negación de expresión con bits >
+	#	 '$' EXPRESION < Representación en entero de expresión con bits >
+	#	 '@' EXPRESION < Representación en expresión con bits de un entero >
+	#	 '-' EXPRESION < Menos unario para enteros>
+	#--------------------------------------------------------------------------#
+	def interprete
+		if (@operator == "NOT") then return ! @operand.interpreter
+		elsif (@operator == "NOTBITS") then return @operand.interpreter[2..-1].tr('10', '01')
+		elsif @operator == "BITSREPRESENTATION" then return @operand.interpreter.to_i
+		elsif @operator == "TRANSFORM" then return "0b"+@operand.interpreter.to_s(2)
+		elsif @operator == "UMINUS" then return - @operand.interpreter
+		end
+
+		raise "Error al interpretar una operación unaria"
+	end
+
+
+
 end
 
 class ConstExpressionNode
@@ -721,7 +835,6 @@ class ConstExpressionNode
 	end
 
 	def check(table)
-		
 		if @type != "variable"
 			return @type
 		end
@@ -735,7 +848,20 @@ class ConstExpressionNode
 		else
 			return "variable"
 		end
+	end
 
+	#--------------------------------------------------------------------------#
+	# 						INTERPRETADOR DE LAS EXPRESIONES CONSTANTES
+	# Para tipos bits e int retorna el valor que contiene el Token
+	# Para variables, retorna el valor obtenido desde la tabla
+	#--------------------------------------------------------------------------#
+	def interpreter
+		if @type != "variable"
+			return @value.value
+		else
+			puts "VALORVALOR: #{@value.value}"
+			return table.find(@value.value).getValue()
+		end
 	end
 
 end
@@ -754,7 +880,7 @@ class AccessNode
 		@expression.printAST(indent+"    ")
 	end
 
-	def check()
+	def check(table)
 		puts "check access node"
 	end
 

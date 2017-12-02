@@ -83,8 +83,10 @@ def main
 	# Create symbol table for the AST returned by the parser
 	begin
 		ast.check(nil)
-		ast.printAST
+		#ast.printAST
 	end
+
+	ast.interprete
 
 end
 
