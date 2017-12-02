@@ -181,7 +181,7 @@ class Parser
 		| 'true' 											{result = ConstExpressionNode.new(val[0], "bool")}
 		| 'false' 										{result = ConstExpressionNode.new(val[0], "bool")}
 		| 'string' 										{result = ConstExpressionNode.new(val[0], "string")}
-		| 'identifier' '[' EXPRESSION ']' {result = AccessNode.new(val[0], val[2])}
+		| EXPRESSION '[' EXPRESSION ']' {result = AccessNode.new(val[0], val[2])}
 		;
 
 end
