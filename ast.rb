@@ -45,7 +45,6 @@ class BlockNode
 			return printSemanticErrors()
 		end
 
-
 		puts "#{indent}BEGIN"
 		if @statements
 				puts "#{indent+"  "}SYMBOL TABLE"
@@ -62,17 +61,25 @@ class BlockNode
 	# 
 	#-----------------------------------------------------------
 	def check(parentTable)
-
 		@t = SymbolTable.new(parentTable)
 		
 		if @statements
 			@statements.check(@t)
 		end
-
 		if @instructions
 			@instructions.check(@t)
 		end
+	end
 
+	#--------------------------------------------------------------------------#
+	# 										INTERPRETADOR DEL NODO BLOQUE
+	# -> Si hay declaraciones, estas son interpretadas.
+	# -> Si hay instrucciones, estas son interpretadas.
+	# Las declaraciones son interpretadas primero que las instrucciones.
+	#--------------------------------------------------------------------------#
+	def interprete
+		if @statements then @statements.interpreteend
+		if @instructions then @instructions.interprete end
 	end
 
 end
@@ -98,6 +105,17 @@ class StatementsNode
 		@statementsNode.check(table)
 		@statementNode.check(table)
 	end
+
+	#--------------------------------------------------------------------------#
+	# 						INTERPRETADOR DEL NODO LISTA DE DECLARACIONES
+	# Se encarga de llamar al interpretador de cada declaración recursivamente
+	# llamando al interpretador del nodo lista de declaraciones.
+	#--------------------------------------------------------------------------#
+	def interprete
+		@statementsNode.interprete
+		@statementNode.interprete
+	end
+
 
 end
 
@@ -184,6 +202,20 @@ class StatementNode
 			end
 		end
 
+	end
+	
+	#--------------------------------------------------------------------------#
+	# 						INTERPRETADOR DEL NODO DECLARACIONES
+	# Este interpretador tiene dos tareas principales, una es verificar si el 
+	# tamaño indicado de una expresión declarada con tipo bits coincide con el
+	# tamaño de la inicialización. Para esto, el tamaño de la declaracion es
+	# interpretado y luego este es verificado con el de la inicialización.
+	# La otra tarea de este interpretador es insertar una expresion tipo bits
+	# en la tabla de símbolos una vez es interpretado el valor de su tamaño 
+	#--------------------------------------------------------------------------#
+	def interprete
+		if @size a
+			@size.interprete
 	end
 
 end
