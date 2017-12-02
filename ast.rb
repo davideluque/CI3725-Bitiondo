@@ -291,6 +291,17 @@ class OutputNode
 		@expressions.check(table)
 	end
 
+	def interprete
+
+		if @type == "OUTPUT"
+			@expressions.interprete
+		else @type == "OUTPUTLN"
+			puts"\n"
+			@expressions.interprete
+		end
+		
+	end
+
 end
 
 class ExpressionsNode
@@ -452,10 +463,17 @@ class ForLoopNode
 	end
 
 	def interprete
+		# Asignamos a i el valor inicial del for para llevar conteo de la condicion
 		i = @assignation.value
-		until @assignation.identifier @exp1.operator do
+
+		# Repetimos codigo hasta que la condicion sea falsa
+		until @assignation.identifier @exp1.operator i do
+			
+			# Aqui se ejecuta la instruccion
 			@instruction.interprete
-			i = i @exp2.operator @exp2.rightoperand
+
+			# Aqui se lleva el conteo los pasos
+			i =  @exp2.operator @exp2.rightoperand
 		end 
 	end
 
