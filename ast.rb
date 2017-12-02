@@ -362,6 +362,15 @@ class ConditionalNode
 		if @ins2 then @ins2.check(table) end
 	end
 
+	def interprete
+		if @expression.interprete == false
+			if @ins2
+				@ins2.interprete
+			end
+		else
+			@ins1.interprete
+		end
+	end 
 end
 
 class ForLoopNode
@@ -442,6 +451,14 @@ class ForLoopNode
 		@instruction.check(table)
 	end
 
+	def interprete
+		i = @assignation.value
+		until @assignation.identifier @exp1.operator do
+			@instruction.interprete
+			i = i @exp2.operator @exp2.rightoperand
+		end 
+	end
+
 end
 
 class ForbitsLoopNode
@@ -478,6 +495,7 @@ class ForbitsLoopNode
 	end
 
 	def interprete
+
 		
 		k = expresion_int.interprete
 
