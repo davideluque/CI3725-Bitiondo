@@ -446,10 +446,10 @@ end
 
 class ForbitsLoopNode
 
-	def initialize(exp1, identifier, exp2, direction, instruction)
-		@exp1 = exp1
+	def initialize(bits_expression, identifier, exp2, direction, instruction)
+		@bits_expression = bits_expression
 		@identifier = identifier
-		@exp2 = exp2
+		@expresion_int = expresion_int
 		@direction = direction
 		@instruction = instruction
 	end
@@ -457,11 +457,11 @@ class ForbitsLoopNode
 	def printAST(indent)
 		puts "#{indent}FORBITS LOOP"
 		puts "#{indent+"  "}BITS EXPRESSION:"
-		@exp1.printAST(indent+"    ")
+		@bits_expression.printAST(indent+"    ")
 		puts "#{indent+"  "}IDENTIFIER:"
 		puts "#{indent+"    "}value: #{@identifier.value}"
 		puts "#{indent+"  "}FROM:"
-		@exp2.printAST(indent+"    ")
+		@expresion_int.printAST(indent+"    ")
 		puts "#{indent+"  "}GOING:"
 		puts "#{indent+"    "}value: #{@direction.value}"
 		puts "#{indent+"  "}INSTRUCTION:"
@@ -470,7 +470,7 @@ class ForbitsLoopNode
 
 	def check(table)
 		
-		if @exp1.check(table) != "bits"
+		if @bits_expression.check(table) != "bits"
 			SemanticErrors.push("Error en línea #{@identifier.locationinfo[:line]}: La expresión no es de tipo bits")
 		end
 
@@ -479,6 +479,11 @@ class ForbitsLoopNode
 
 	def interprete
 		
+		k = expresion_int.interprete
+
+		@bits_expression[2+k..-1].each_char{ |c|
+
+		}
 	end
 
 end
@@ -528,6 +533,7 @@ class RepeatWhileLoopNode
 
 	def interprete
 		if not @instruction2
+			@instruction1.interprete
 			while(@condition.interprete)
 				@instruction1.interprete
 			end
@@ -672,7 +678,9 @@ class BinExpressionNode
 		if operandoDeclarado
 			@validOperations.each do |op, value|
 				if leftType == value[1] and @operator == value[0] and rightType == value[2]
-					return value[3]
+
+				return value[3
+
 				end
 			end
 		end
@@ -722,6 +730,7 @@ class BinExpressionNode
 		elsif (@operator == "+") then
 			return @leftoperand.interprete + @rightoperand.interprete
 		elsif (@operator == "-") then
+		@instruction1.interprete
 			return @leftoperand.interprete - @rightoperand.interprete
 		elsif (@operator == "<<")
 			###################################################################
@@ -833,8 +842,6 @@ class UnaryExpressionNode
 		raise "Error al interpretar una operación unaria"
 	end
 
-
-
 end
 
 class ConstExpressionNode
@@ -897,22 +904,17 @@ class AccessNode
 	end
 
 	def check(table)
-
 		if @exp1.check(table) == "variable"
 			if !table.lookup(@exp1.value)
 				return SemanticErrors.push("Error: La variable #{@exp1.value.value} no fue declarada")
 			end
-
 		else 
 			if  @exp1.check(table) != "bits" 
 				return SemanticErrors.push("Error en línea #{@exp1.value.locationinfo[:line]}, columna #{@exp1.value.locationinfo[:column]}: La variable #{@exp1.value.value} no es tipo bits")
-
 			else @exp2.check(table) != "int"
 				return SemanticErrors.push("Error en línea #{@exp1.value.locationinfo[:line]}, columna #{@exp1.value.locationinfo[:column]}:: El tamaño de la variable #{@exp1.value.value} de tipo bits recibe un int")
 			end
-
 		end
- 
 	end
 
 end
