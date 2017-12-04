@@ -77,9 +77,9 @@ class BlockNode
 	# -> Si hay instrucciones, estas son interpretadas.
 	# Las declaraciones son interpretadas primero que las instrucciones.
 	#--------------------------------------------------------------------------#
-	def interprete
-		if @statements then @statements.interprete end
-		if @instructions then @instructions.interprete end
+	def interprete(symbol_table)
+		if @statements then @statements.interprete(@t) end
+		if @instructions then @instructions.interprete(@t) end
 	end
 
 end
@@ -110,11 +110,10 @@ class StatementsNode
 	# 						INTERPRETADOR DEL NODO LISTA DE DECLARACIONES
 	# Se encarga de llamar recursivamente al interpretador de cada declaración 
 	#--------------------------------------------------------------------------#
-	def interprete
-		@statementsNode.interprete
-		@statementNode.interprete
+	def interprete(symbol_table)
+		@statementsNode.interprete(symbol_table)
+		@statementNode.interprete(symbol_table)
 	end
-
 
 end
 
@@ -182,7 +181,7 @@ class StatementNode
 			elsif @size.check(table) != "int"
 				return SemanticErrors.push("Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tamaño de identificador tipo bits debe ser un entero")
 			else
-				return table.insert(@identifier.value, @type.type, @size.value, @value.value)			
+				return table.insert(@identifier.value, @type.type, @value.value, @size.value)			
 			end
 
 		end
@@ -193,10 +192,8 @@ class StatementNode
 			elsif @size.check(table) != "int"
 				SemanticErrors.push("Error en línea #{@type.locationinfo[:line]}, columna #{@type.locationinfo[:column]}: El tamaño de identificador tipo bits debe ser un entero")
 			else
-					#val = "0b"
-					#for n in 1..Integer(@size.value.value)
-					#	val = val + "0"
-					#end
+					# Inserta una declaración de tipo bits sin valor por defecto
+					# ya que el valor no es interpretado.
 					return table.insert(@identifier.value, @type.type, nil, @size.value)
 			end
 		end
@@ -204,7 +201,7 @@ class StatementNode
 	end
 	
 	#--------------------------------------------------------------------------#
-	# 						INTERPRETADOR DEL NODO DECLARACIONES
+	# 						INTERPRETADOR DEL NODO DECLARACION
 	# Este interpretador tiene dos tareas principales, una es verificar si el 
 	# tamaño indicado de una expresión declarada con tipo bits coincide con el
 	# tamaño de la inicialización. Para esto, el tamaño de la declaracion es
@@ -212,16 +209,24 @@ class StatementNode
 	# La otra tarea de este interpretador es insertar una expresion tipo bits
 	# en la tabla de símbolos una vez es interpretado el valor de su tamaño 
 	#--------------------------------------------------------------------------#
-	def interprete
+	def interprete(symbol_table)
 		if @size
-			bits_decl_size = @size.interprete
+			bits_decl_size = @size.interprete(symbol_table)
+			# si hay valor, verificar el tamaño del valor con el de la declaración
 			if @value
+				bits_value_size = @value.value.length - 2 # No contar 0b
 				puts bits_decl_size
-				puts @value.value.length
-				if bits_decl_size == @value.value.length
-					# ACTUALIZAR EL ELEMENTO EN LA TS
-					#table.insert
+				puts bits_value_size
+				if bits_decl_size == bits_value_size
+					symbol_table.update(@identifier.value, @type.type, @value.value, bits_decl_size)
+				else
+					raise "El tamaño de la declaración no coincide con el tamaño de la inicialización"
 				end
+			# si no lo hay, como fue posible interpretar el tamaño, actualizar en la
+			# tabla de simbolos el valor por defecto. 
+			elsif not @value
+					bits_expression = "0b" + "0" * bits_decl_size
+					symbol_table.update(@identifier.value, @type.type, bits_expression, bits_decl_size)
 		end
 	end
 
@@ -245,6 +250,15 @@ class InstructionsNode
 	def check(parentTable)
 		@instructionsNode.check(parentTable)
 		@instructionNode.check(parentTable)
+	end
+
+	#--------------------------------------------------------------------------#
+	# 						INTERPRETADOR DEL NODO LISTA DE INSTRUCCIONES
+	# Se encarga de llamar recursivamente al interpretador de cada instrucción 
+	#--------------------------------------------------------------------------#
+	def interprete(symbol_table)
+		@instructionsNode.interprete(symbol_table)
+		@instructionNode.interprete(symbol_table)
 	end
 
 end
@@ -288,7 +302,35 @@ class AssignationNode
 			SemanticErrors.push("Error en la línea #{@identifier.locationinfo[:line]}, columna #{@identifier.locationinfo[:column]}: El tipo de la declaración no coincide con el de la asignación")
 			return
 		end
+	end
 
+	#--------------------------------------------------------------------------#
+	# 						INTERPRETADOR DEL NODO ASIGNACIÓN
+	# VARIABLE
+	# POSITION
+	# VALUE
+	#--------------------------------------------------------------------------#
+	def interprete(symbol_table)
+		
+		if table.find(@identifier.value).type == "bits"
+				bits_declared_expression = table.find(@identifier.value)
+
+			if not @position
+				bits_value_expression_size = @value.value.length - 2
+
+				if bits_declared_expression.size == bits_value_expression_size
+					symbol_table.update(@identifier.value, "bits", @value.value, bits_value_expression_size)
+				else
+					raise "Error. Declaraste una variable de un tamaño y el tamaño que le estas intentando asignar no es el mismo."
+				end
+			elsif @positition
+				position_value = @position.interprete(symbol_table)
+				if position_value <= bits_declared_expression.size
+					bits_declared_expression
+				else
+
+				end
+			end
 	end
 
 end
