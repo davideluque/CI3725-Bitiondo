@@ -412,6 +412,11 @@ class ExpressionsNode
 		end
 	end
 
+	def interprete
+		@expressionsNode.interprete()
+		@expressionNode.interprete()	
+	end
+
 end
 
 class ConditionalNode
@@ -1053,5 +1058,5 @@ end
 def printSemanticErrors()
 	SemanticErrors.each do |se|
 			puts se
-		end
+	end
 end
