@@ -78,7 +78,7 @@ class BlockNode
 	# Las declaraciones son interpretadas primero que las instrucciones.
 	#--------------------------------------------------------------------------#
 	def interprete
-		if @statements then @statements.interpreteend
+		if @statements then @statements.interprete end
 		if @instructions then @instructions.interprete end
 	end
 
@@ -108,8 +108,7 @@ class StatementsNode
 
 	#--------------------------------------------------------------------------#
 	# 						INTERPRETADOR DEL NODO LISTA DE DECLARACIONES
-	# Se encarga de llamar al interpretador de cada declaración recursivamente
-	# llamando al interpretador del nodo lista de declaraciones.
+	# Se encarga de llamar recursivamente al interpretador de cada declaración 
 	#--------------------------------------------------------------------------#
 	def interprete
 		@statementsNode.interprete
