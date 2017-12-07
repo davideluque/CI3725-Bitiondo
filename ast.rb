@@ -227,6 +227,7 @@ class StatementNode
 			elsif not @value
 					bits_expression = "0b" + "0" * bits_decl_size
 					symbol_table.update(@identifier.value, @type.type, bits_expression, bits_decl_size)
+			end
 		end
 	end
 
@@ -313,7 +314,7 @@ class AssignationNode
 	def interprete(symbol_table)
 		
 		if table.find(@identifier.value).type == "bits"
-				bits_declared_expression = table.find(@identifier.value)
+			bits_declared_expression = table.find(@identifier.value)
 
 			if not @position
 				bits_value_expression_size = @value.value.length - 2
@@ -325,12 +326,17 @@ class AssignationNode
 				end
 			elsif @positition
 				position_value = @position.interprete(symbol_table)
-				if position_value <= bits_declared_expression.size
-					bits_declared_expression
+				if 0 <= position_value <= bits_declared_expression.size - 2
+					if @value.value == '0' or @value.value == '1'
+						bits_declared_expression[position_value+2] = @value.value
+					else
+						raise "A expresiones tipo bits solo se le pueden asignar ceros o unos."
+					end
 				else
-
+					raise "Estas tratando de asignar en una posicion que el bits no tiene."
 				end
 			end
+		end
 	end
 
 end
@@ -353,45 +359,64 @@ class InputNode
 		end
 	end
 
-	def interprete
+	def interprete(symbol_table)
 		
-		# Read from standard input
-		userInput = $stdin.gets
-		# Remove newline character
-		userInput = input.chomp
-		# Remove beginning whitespaces
-		userInput = input.lstrip
-		# Remove trailing whitespaces
-		input = input.rstrip
+		while(true)
 
-		if gets != @identifier.type
-			puts "Error no coiniden el tipo de variable"
 			# Read from standard input
 			userInput = $stdin.gets
 			# Remove newline character
-			userInput = input.chomp
+			userInput = userInput.chomp
 			# Remove beginning whitespaces
-			userInput = input.lstrip
+			userInput = userInput.lstrip
 			# Remove trailing whitespaces
-			input = input.rstrip
+			userInput = userInput.rstrip
 
-			if @identifier == "bits"
-				if @identifier.size != length(input)-2
-					puts "Error no coincide el tamaño de bits"
-					# Read from standard input
-					userInput = $stdin.gets
-					# Remove newline character
-					userInput = input.chomp
-					# Remove beginning whitespaces
-					userInput = input.lstrip
-					# Remove trailing whitespaces
-					input = input.rstrip
+			# Se obtiene el tipo que tiene la entrada del usuario
+			input_type = getInputType(userInput)
+
+			# Se obtiene el tipo de la variable a la que va el input
+			variable_info = symbol_table.find(@identifier.value)
+
+			puts variable_type
+
+			if(input_type != variable_info.type)
+
+				puts "Error no coincide el tipo de variable con el tipo de la entrada"
+				puts "Intentalo de nuevo"
+
+			else
+				if variable_info.type == "bits" and variable_info.size != userInput.length - 2
+					puts "Error. El tamano introducido para la variable tipo bits no coincide con el inicializado"
+					puts "Intentalo de nuevo"
+					next
+				else break
+				
 				end
-			end	
-		end 
+			end
+		end
+	end
+
+
+	def getInputType(userInput)
+		integer = /\A[0-9]+/
+		True = /\Atrue\b/
+		False = /\Afalse\b/
+		bitexpr = /\A0b[0-1]+/
+
+		if(userInput =~ integer)
+			return 'int'
+		elsif (userInput =~ True or userInput =~ False)
+			return 'bool'
+		elsif (userInput =~ bitexpr)
+			return 'bits'
+		else
+			return nil
+		end
 	end
 
 end
+
 
 class OutputNode
 
@@ -410,13 +435,13 @@ class OutputNode
 		@expressions.check(table)
 	end
 
-	def interprete
+	def interprete(symbol_table)
 
 		if @type == "OUTPUT"
-			@expressions.interprete
-		else @type == "OUTPUTLN"
+			puts @expressions.interprete
+		elsif @type == "OUTPUTLN"
+			puts @expressions.interprete
 			puts"\n"
-			@expressions.interprete
 		end
 		
 	end
@@ -450,9 +475,9 @@ class ExpressionsNode
 		end
 	end
 
-	def interprete
-		@expressionsNode.interprete()
-		@expressionNode.interprete()	
+	def interprete(symbol_table)
+		@expressionsNode.interprete(symbol_table)
+		@expressionNode.interprete(symbol_table)	
 	end
 
 end
