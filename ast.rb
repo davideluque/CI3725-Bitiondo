@@ -312,6 +312,44 @@ class InputNode
 		end
 	end
 
+	def interprete
+		
+		# Read from standard input
+		userInput = $stdin.gets
+		# Remove newline character
+		userInput = input.chomp
+		# Remove beginning whitespaces
+		userInput = input.lstrip
+		# Remove trailing whitespaces
+		input = input.rstrip
+
+		if gets != @identifier.type
+			puts "Error no coiniden el tipo de variable"
+			# Read from standard input
+			userInput = $stdin.gets
+			# Remove newline character
+			userInput = input.chomp
+			# Remove beginning whitespaces
+			userInput = input.lstrip
+			# Remove trailing whitespaces
+			input = input.rstrip
+
+			if @identifier == "bits"
+				if @identifier.size != length(input)-2
+					puts "Error no coincide el tamaño de bits"
+					# Read from standard input
+					userInput = $stdin.gets
+					# Remove newline character
+					userInput = input.chomp
+					# Remove beginning whitespaces
+					userInput = input.lstrip
+					# Remove trailing whitespaces
+					input = input.rstrip
+				end
+			end	
+		end 
+	end
+
 end
 
 class OutputNode
