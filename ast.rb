@@ -629,7 +629,7 @@ end
 
 class ForbitsLoopNode
 
-	def initialize(bits_expression, identifier, exp2, direction, instruction)
+	def initialize(bits_expression, identifier, expresion_int, direction, instruction)
 		@bits_expression = bits_expression
 		@identifier = identifier
 		@expresion_int = expresion_int
@@ -660,14 +660,19 @@ class ForbitsLoopNode
 		@instruction.check(table)
 	end
 
-	def interprete
+	def interprete(symbol_table)
 
-		
 		k = expresion_int.interprete
 
-		@bits_expression[2+k..-1].each_char{ |c|
-
+		if @direction.value == "higher"
+			@bits_expression[2+k..-1].each_char{ |c|
+				puts c 
 		}
+		elsif @direction.value == "lower"
+			@bits_expression.reverse[k..2].each_char{ |c|
+				puts c
+		}			
+		end	
 	end
 
 end
