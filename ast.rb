@@ -452,9 +452,9 @@ class OutputNode
 	def interprete(symbol_table)
 
 		if @type == "OUTPUT"
-			print @expressions.interprete(symbol_table)
+			@expressions.interprete(symbol_table)
 		elsif @type == "OUTPUTLN"
-			print @expressions.interprete(symbol_table)
+			@expressions.interprete(symbol_table)
 			print "\n"
 		end
 		
@@ -489,8 +489,8 @@ class ExpressionsNode
 	end
 
 	def interprete(symbol_table)
-		@expressionsNode.interprete(symbol_table)
-		@expressionNode.interprete(symbol_table)	
+		print @expressionsNode.interprete(symbol_table)
+		print @expressionNode.interprete(symbol_table)
 	end
 
 end
