@@ -210,6 +210,11 @@ class StatementNode
 	# en la tabla de símbolos una vez es interpretado el valor de su tamaño 
 	#--------------------------------------------------------------------------#
 	def interprete(symbol_table)
+
+		if @value and not @size
+			symbol_table.update(@identifier.value, @type.type, @value.interprete(symbol_table), nil)
+		end
+
 		if @size
 			bits_decl_size = @size.interprete(symbol_table).to_i
 			# si hay valor, verificar el tamaño del valor con el de la declaración
@@ -313,8 +318,12 @@ class AssignationNode
 		
 		if symbol_table.find(@identifier.value).type == "bool"
 			val = @value.interprete(symbol_table)
-			puts val
 			symbol_table.update(@identifier.value, "bool", val,nil)
+		end
+
+		if symbol_table.find(@identifier.value).type == "int"
+			val = @value.interprete(symbol_table)
+			symbol_table.update(@identifier.value, "int", val, nil)
 		end
 
 		if symbol_table.find(@identifier.value).type == "bits"
