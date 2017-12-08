@@ -553,6 +553,7 @@ class ForLoopNode
 		@exp1 = exp1
 		@exp2 = exp2
 		@instruction = instruction
+		@t = nil
 	end
 
 	def printAST(indent)
@@ -569,11 +570,8 @@ class ForLoopNode
 
 	def check(table)
 		
-		# ----------------------TO DO------------------------- 
-		# Buscarle un uso a esta tabla de símbolos
-		# ----------------------------------------------------
 		# The for loop has its own table with the loop variable
-		t = SymbolTable.new(table)
+		@t = SymbolTable.new(table)
 		
 		# Get assignation needed parameters
 		id = @assignation.identifier.value
@@ -585,13 +583,6 @@ class ForLoopNode
 			SemanticErrors.push("Error en línea #{@assignation.identifier.locationinfo[:line]}, columna #{@assignation.identifier.locationinfo[:column]}: Inicialización de #{id} incorrecta.")
 			return
 		end
-
-		# Case: Variable has been declared before
-		if t.lookup(id)
-			SemanticErrors.push("Error en línea #{@assignation.identifier.locationinfo[:line]}: Variable #{id} declarada anteriormente")
-			return
-		end
-
 
 		# Case: assignation is not integer
 		if val.check(table) != "int"
@@ -625,18 +616,21 @@ class ForLoopNode
 	end
 
 	def interprete(symbol_table)
+
 		# Asignamos a i el valor inicial del for para llevar conteo de la condicion
-		i = @assignation.value
+		i = @assignation.value.interprete(symbol_table).to_i
+		@t.insert(@assignation.identifier.value, "int", i, nil)
+
+		step = @exp2.interprete(@t).to_i
 
 		# Repetimos codigo hasta que la condicion sea falsa
-		until @assignation.identifier @exp1.operator i do
-			
+		while(@exp1.interprete(@t))
 			# Aqui se ejecuta la instruccion
-			@instruction.interprete(symbol_table)
-
-			# Aqui se lleva el conteo los pasos
-			i =  @exp2.operator @exp2.rightoperand
-		end 
+			@instruction.interprete(@t)
+			i = i + step
+			@t.update(@assignation.identifier.value, "int", i, nil)
+		end
+		
 	end
 
 end
