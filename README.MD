@@ -1,6 +1,6 @@
 README
 Traductores e Interpretadores
-Etapa 2 - Analizador sintáctico
+Lenguaje para operaciones en conjuntos de bits
 
 Autores:
 David Ernesto Cabeza Luque 1310191 <13-10191@usb.ve>
