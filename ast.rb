@@ -211,12 +211,10 @@ class StatementNode
 	#--------------------------------------------------------------------------#
 	def interprete(symbol_table)
 		if @size
-			bits_decl_size = @size.interprete(symbol_table)
+			bits_decl_size = @size.interprete(symbol_table).to_i
 			# si hay valor, verificar el tamaño del valor con el de la declaración
 			if @value
 				bits_value_size = @value.value.length - 2 # No contar 0b
-				puts bits_decl_size
-				puts bits_value_size
 				if bits_decl_size == bits_value_size
 					symbol_table.update(@identifier.value, @type.type, @value.value, bits_decl_size)
 				else
@@ -313,11 +311,12 @@ class AssignationNode
 	#--------------------------------------------------------------------------#
 	def interprete(symbol_table)
 		
-		if table.find(@identifier.value).type == "bits"
-			bits_declared_expression = table.find(@identifier.value)
+		if symbol_table.find(@identifier.value).type == "bits"
+			bits_declared_expression = symbol_table.find(@identifier.value)
 
 			if not @position
-				bits_value_expression_size = @value.value.length - 2
+
+				bits_value_expression_size = @value.value.value.length - 2
 
 				if bits_declared_expression.size == bits_value_expression_size
 					symbol_table.update(@identifier.value, "bits", @value.value, bits_value_expression_size)
@@ -378,20 +377,23 @@ class InputNode
 			# Se obtiene el tipo de la variable a la que va el input
 			variable_info = symbol_table.find(@identifier.value)
 
-			puts variable_type
-
 			if(input_type != variable_info.type)
-
 				puts "Error no coincide el tipo de variable con el tipo de la entrada"
 				puts "Intentalo de nuevo"
-
+				next
 			else
 				if variable_info.type == "bits" and variable_info.size != userInput.length - 2
 					puts "Error. El tamano introducido para la variable tipo bits no coincide con el inicializado"
 					puts "Intentalo de nuevo"
 					next
-				else break
-				
+				else
+					if variable_info.type == "bits"
+						symbol_table.update(@identifier.value, variable_info.type, userInput, variable_info.size)
+					else
+						symbol_table.update(@identifier.value, variable_info.type, userInput, nil)
+					end
+
+					break
 				end
 			end
 		end
@@ -399,17 +401,17 @@ class InputNode
 
 
 	def getInputType(userInput)
-		integer = /\A[0-9]+/
-		True = /\Atrue\b/
-		False = /\Afalse\b/
-		bitexpr = /\A0b[0-1]+/
+		integer_regex = /\A[0-9]+/
+		true_regex = /\Atrue\b/
+		false_regex = /\Afalse\b/
+		bitexpr_regex = /\A0b[0-1]+/
 
-		if(userInput =~ integer)
-			return 'int'
-		elsif (userInput =~ True or userInput =~ False)
-			return 'bool'
-		elsif (userInput =~ bitexpr)
+		if (userInput =~ bitexpr_regex)
 			return 'bits'
+		elsif (userInput =~ true_regex or userInput =~ false_regex)
+			return 'bool'
+		elsif (userInput =~ integer_regex)
+			return 'int'
 		else
 			return nil
 		end
@@ -438,9 +440,9 @@ class OutputNode
 	def interprete(symbol_table)
 
 		if @type == "OUTPUT"
-			puts @expressions.interprete
+			puts @expressions.interprete(symbol_table)
 		elsif @type == "OUTPUTLN"
-			puts @expressions.interprete
+			puts @expressions.interprete(symbol_table)
 			puts"\n"
 		end
 		
@@ -468,7 +470,6 @@ class ExpressionsNode
 		@expressionNode.check(table)
 
 		if @expressionNode.check(table) == "variable"
-			puts @expressionNode.value.value
 			if !table.lookup(@expressionNode.value.value) 
 				return SemanticErrors.push("Error aqui: La variable #{@expressionNode.value.value} no fue declarada")
 			end
@@ -521,13 +522,14 @@ class ConditionalNode
 		if @ins2 then @ins2.check(table) end
 	end
 
-	def interprete
-		if @expression.interprete == false
+	def interprete(symbol_table)
+		
+		if eval(@expression.interprete(symbol_table)) == false
 			if @ins2
-				@ins2.interprete
+				@ins2.interprete(symbol_table)
 			end
 		else
-			@ins1.interprete
+			@ins1.interprete(symbol_table)
 		end
 	end 
 end
@@ -610,7 +612,7 @@ class ForLoopNode
 		@instruction.check(table)
 	end
 
-	def interprete
+	def interprete(symbol_table)
 		# Asignamos a i el valor inicial del for para llevar conteo de la condicion
 		i = @assignation.value
 
@@ -618,7 +620,7 @@ class ForLoopNode
 		until @assignation.identifier @exp1.operator i do
 			
 			# Aqui se ejecuta la instruccion
-			@instruction.interprete
+			@instruction.interprete(symbol_table)
 
 			# Aqui se lleva el conteo los pasos
 			i =  @exp2.operator @exp2.rightoperand
@@ -653,6 +655,8 @@ class ForbitsLoopNode
 
 	def check(table)
 		
+		@identifier.value = k 
+
 		if @bits_expression.check(table) != "bits"
 			SemanticErrors.push("Error en línea #{@identifier.locationinfo[:line]}: La expresión no es de tipo bits")
 		end
@@ -662,19 +666,23 @@ class ForbitsLoopNode
 
 	def interprete(symbol_table)
 
-		k = expresion_int.interprete
+		k = expresion_int.interprete(sym_table)
 
 		if @direction.value == "higher"
-			@bits_expression[2+k..-1].each_char{ |c|
+			
+			@bits_expression[2+k..-1].each_char do |c|
 				puts c 
-		}
-		elsif @direction.value == "lower"
-			@bits_expression.reverse[k..2].each_char{ |c|
-				puts c
-		}			
-		end	
-	end
+			end
 
+		elsif @direction.value == "lower"
+			
+			@bits_expression.reverse[k..2].each_char do |c|
+				puts c
+			end
+
+		end	
+	
+	end
 end
 
 class RepeatWhileLoopNode
@@ -713,28 +721,37 @@ class RepeatWhileLoopNode
 			end
 		end
 
-		@ins1.check(table)	
+		@instruction1.check(table)	
 
-		if @ins2
-			@ins2.check(table)
+		if @instruction2
+			@instruction2.check(table)
 		end	
 	end
 
-	def interprete
+	def interprete(symbol_table)
+		
+		#puts @condition.interprete(symbol_table)
+
 		if not @instruction2
-			@instruction1.interprete
-			while(@condition.interprete)
-				@instruction1.interprete
+			@instruction1.interprete(symbol_table)
+			while(eval(@condition.interprete(symbol_table)))
+				@instruction1.interprete(symbol_table)
 			end
 		else
-			@instruction1.interprete
-			while(@condition.interprete)
-				@instruction2.interprete
-				@instruction1.interprete
+			cond = @instruction1.interprete(symbol_table)
+			if cond.class == TrueClass or cond.class == FalseClass then cond = @instruction1.interprete(symbol_table)
+			else cond = eval(@instruction1.interprete(symbol_table))
+			end
+			while(cond)
+				@instruction2.interprete(symbol_table)
+				@instruction1.interprete(symbol_table)
+				if cond.class == TrueClass or cond.class == FalseClass then cond = @instruction1.interprete(symbol_table)
+				else cond = eval(@instruction1.interprete(symbol_table))
+				end
 			end
 		end
-	end 
 
+	end 
 end
 
 class WhileLoopNode
@@ -775,9 +792,9 @@ class WhileLoopNode
 	# -> Interpreta la instrucción
 	# -> Interpreta la condición en cada iteración para verificar la modificación 
 	#--------------------------------------------------------------------------#
-	def interprete
-		while(@condition.interprete) do 
-			@instruction.interprete
+	def interprete(sym_table)
+		while(@condition.interprete(sym_table)) do 
+			@instruction.interprete(sym_table)
 		end
 	end
 
@@ -868,7 +885,7 @@ class BinExpressionNode
 			@validOperations.each do |op, value|
 				if leftType == value[1] and @operator == value[0] and rightType == value[2]
 
-				return value[3
+				return value[3]
 
 				end
 			end
@@ -909,49 +926,59 @@ class BinExpressionNode
 	#	EXPRESION '&&' EXPRESION < Conjunción entre booleanos >
 	#	EXPRESION '||' EXPRESION < Disyunción entre booleanos >
 	#--------------------------------------------------------------------------#
-	def interprete
-		if (@operator == "*") then 
-			return @leftoperand.interprete * @rightoperand.interprete
-		elsif (@operator == "/") then
-			#return @leftoperand.interprete / @rightoperand.interprete
-		elsif (@operator == "%") then
-			return @leftoperand.interprete % @rightoperand.interprete
-		elsif (@operator == "+") then
-			return @leftoperand.interprete + @rightoperand.interprete
-		elsif (@operator == "-") then
-		@instruction1.interprete
-			return @leftoperand.interprete - @rightoperand.interprete
-		elsif (@operator == "<<")
+	def interprete(sym_table)
+
+		if (@operator == "MULTIPLICATION") then 
+			return @leftoperand.interprete(sym_table).to_i * @rightoperand.interprete(sym_table).to_i
+		elsif (@operator == "DIVISION") then
+			#return @leftoperand.interprete(sym_table).to_i / @rightoperand.interprete(sym_table).to_i
+		elsif (@operator == "MODULUS") then
+			return @leftoperand.interprete(sym_table).to_i % @rightoperand.interprete(sym_table).to_i
+		elsif (@operator == "PLUS") then
+			return @leftoperand.interprete(sym_table).to_i + @rightoperand.interprete(sym_table).to_i
+		elsif (@operator == "MINUS") then
+			return @leftoperand.interprete(sym_table).to_i - @rightoperand.interprete(sym_table).to_i
+		elsif (@operator == "LEFTSHIFT")
 			###################################################################
-			return @leftoperand.interprete << @rightoperand.interprete
-		elsif (@operator == ">>")
+			# ALERTA ROJO ####
 			###################################################################
-			return @leftoperand.interprete >> @rightoperand.interprete
-		elsif (@operator == "<")
-			return @leftoperand.interprete < @rightoperand.interprete
-		elsif (@operator == "<=")
-			return @leftoperand.interprete <= @rightoperand.interprete
-		elsif (@operator == ">")
-			return @leftoperand.interprete > @rightoperand.interprete
-		elsif (@operator == ">=")
-			return @leftoperand.interprete >= @rightoperand.interprete
-		elsif (@operator == "==")
-			return @leftoperand.interprete == @rightoperand.interprete
-		elsif (@operator == "!=")
-			return @leftoperand.interprete != @rightoperand.interprete
-		elsif (@operator == "&")
+			# return @leftoperand.interprete(sym_table) << @rightoperand.interprete(sym_table)
+		elsif (@operator == "RIGHTSHIFT")
+			###################################################################
+			# ALERTA ROJO 
+			#########################################
+			#return @leftoperand.interprete(sym_table) >> @rightoperand.interprete(sym_table)
+		elsif (@operator == "LESSTHAN") then
+			return @leftoperand.interprete(sym_table).to_i < @rightoperand.interprete(sym_table).to_i
+		elsif (@operator == "LESSTHANEQUAL")
+			return @leftoperand.interprete(sym_table).to_i <= @rightoperand.interprete(sym_table).to_i
+		elsif (@operator == "GREATERTHAN")
+			puts "OPERADOR IZQUIERDO: #{@leftoperand.interprete(sym_table)}"
+			puts "OPERADOR DERECHO: #{@rightoperand.interprete(sym_table)}"
+			return @leftoperand.interprete(sym_table).to_i > @rightoperand.interprete(sym_table).to_i
+		elsif (@operator == "GREATERTHANEQUAL")
+			return @leftoperand.interprete(sym_table).to_i >= @rightoperand.interprete(sym_table).to_i
+		elsif (@operator == "ISEQUAL")
+			return @leftoperand.interprete(sym_table).to_i == @rightoperand.interprete(sym_table).to_i
+		elsif (@operator == "ISNOTEQUAL")
+			return @leftoperand.interprete(sym_table).to_i != @rightoperand.interprete(sym_table).to_i
+		elsif (@operator == "ANDBITS")
 			#####################################################################
-			return @leftoperand.interprete & @rightoperand.interprete
-		elsif (@operator == "|")
+			# ALERTA ROJO
+			#########################################
+			#return @leftoperand.interprete(sym_table) & @rightoperand.interprete(sym_table)
+		elsif (@operator == "ORBITS")
 			#####################################################################
-			return @leftoperand.interprete | @rightoperand.interprete
-		elsif (@operator == "^")
+			return @leftoperand.interprete(sym_table) | @rightoperand.interprete(sym_table)
+		elsif (@operator == "EXCLUSIVE")
 			#####################################################################
-			return @leftoperand.interprete ^ @rightoperand.interprete
-		elsif (@operator == "&&")
-			return @leftoperand.interprete && @rightoperand.interprete
-		elsif (@operator == "||")
-			return @leftoperand.interprete || @rightoperand.interprete
+			# ALERTA ROJO 
+			#######################################################
+			#return @leftoperand.interprete(sym_table) ^ @rightoperand.interprete(sym_table)
+		elsif (@operator == "ANDBOOL")
+			return eval(@leftoperand.interprete(sym_table)) && eval(@rightoperand.interprete(sym_table))
+		elsif (@operator == "ORBOOL")
+			return eval(@leftoperand.interprete(sym_table)) || eval(@rightoperand.interprete(sym_table))
 		end
 
 		raise "Hubo un error al verificar una operación binaria"
@@ -1020,12 +1047,12 @@ class UnaryExpressionNode
 	#	 '@' EXPRESION < Representación en expresión con bits de un entero >
 	#	 '-' EXPRESION < Menos unario para enteros>
 	#--------------------------------------------------------------------------#
-	def interprete
-		if (@operator == "NOT") then return ! @operand.interpreter
-		elsif (@operator == "NOTBITS") then return @operand.interpreter[2..-1].tr('10', '01')
-		elsif @operator == "BITSREPRESENTATION" then return @operand.interpreter.to_i
-		elsif @operator == "TRANSFORM" then return "0b"+@operand.interpreter.to_s(2)
-		elsif @operator == "UMINUS" then return - @operand.interpreter
+	def interprete(sym_table)
+		if (@operator == "NOT") then return ! @operand.interprete(sym_table)
+		elsif (@operator == "NOTBITS") then return @operand.interprete(sym_table)[2..-1].tr('10', '01')
+		elsif @operator == "BITSREPRESENTATION" then return @operand.interprete(sym_table).to_i
+		elsif @operator == "TRANSFORM" then return "0b"+@operand.interprete(sym_table).to_s(2)
+		elsif @operator == "UMINUS" then return - @operand.interprete(sym_table)
 		end
 
 		raise "Error al interpretar una operación unaria"
@@ -1067,12 +1094,14 @@ class ConstExpressionNode
 	# Para tipos bits e int retorna el valor que contiene el Token
 	# Para variables, retorna el valor obtenido desde la tabla
 	#--------------------------------------------------------------------------#
-	def interpreter
+	def interprete(symbol_table)
 		if @type != "variable"
 			return @value.value
 		else
-			puts "VALORVALOR: #{@value.value}"
-			return table.find(@value.value).getValue()
+			puts "SOY VARIABLE"
+			#puts symbol_table.find(@value.value)
+			puts symbol_table.find(@value.value).value
+			return symbol_table.find(@value.value).getValue()
 		end
 	end
 

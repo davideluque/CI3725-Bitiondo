@@ -22,9 +22,9 @@ require_relative "symtable.rb"
 def main
 
 	# Check if file was given
-	if ARGV[0].nil? then
+	if ARGV[-1].nil? then
 		puts "-- Bitiondo --"
-		puts "Syntax: ./bitiondo file [flag]"
+		puts "Syntax: ./bitiondo [flag] file"
 		puts "Flags:"
 		puts "  -t: Print token list"
 		#puts "  -a: Print abstract syntax tree"
@@ -38,7 +38,7 @@ def main
 	end
 
 	# Check for .bto extension
-	ARGV[0] =~ /\w+\.bto\b/
+	ARGV[-1] =~ /\w+\.bto\b/
 
 	if $&.nil? then
 		puts "Invalid extension. File must have .bto extension"
@@ -49,7 +49,7 @@ def main
 	file, *flags = ARGV
 
 	# Create a new instance of a lexer and read the given file 
-	lexer = Lexer.new(ARGV[0])
+	lexer = Lexer.new(file)
 
 	# Do lexical analysis of the file
 	lexer.tokenizer
@@ -86,7 +86,7 @@ def main
 		#ast.printAST
 	end
 
-	ast.interprete
+	ast.interprete(nil)
 
 end
 
