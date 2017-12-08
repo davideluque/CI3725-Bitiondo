@@ -941,7 +941,9 @@ class BinExpressionNode
 		if (@operator == "MULTIPLICATION") then 
 			return @leftoperand.interprete(sym_table).to_i * @rightoperand.interprete(sym_table).to_i
 		elsif (@operator == "DIVISION") then
-			#return @leftoperand.interprete(sym_table).to_i / @rightoperand.interprete(sym_table).to_i
+			opizq = @leftoperand.interprete(sym_table).to_i
+			opdech = @rightoperand.interprete(sym_table).to_i
+			return  opizq / opdech 
 		elsif (@operator == "MODULUS") then
 			return @leftoperand.interprete(sym_table).to_i % @rightoperand.interprete(sym_table).to_i
 		elsif (@operator == "PLUS") then
@@ -949,15 +951,9 @@ class BinExpressionNode
 		elsif (@operator == "MINUS") then
 			return @leftoperand.interprete(sym_table).to_i - @rightoperand.interprete(sym_table).to_i
 		elsif (@operator == "LEFTSHIFT")
-			###################################################################
-			# ALERTA ROJO ####
-			###################################################################
-			# return @leftoperand.interprete(sym_table) << @rightoperand.interprete(sym_table)
+			return "0b"+((@leftoperand.interprete(sym_table).to_i(2) << @rightoperand.interprete(sym_table).to_i(2)).to_s(2))
 		elsif (@operator == "RIGHTSHIFT")
-			###################################################################
-			# ALERTA ROJO 
-			#########################################
-			#return @leftoperand.interprete(sym_table) >> @rightoperand.interprete(sym_table)
+			return "0b"+((@leftoperand.interprete(sym_table).to_i(2) >> @rightoperand.interprete(sym_table).to_i(2)).to_s(2))
 		elsif (@operator == "LESSTHAN") then
 			return @leftoperand.interprete(sym_table).to_i < @rightoperand.interprete(sym_table).to_i
 		elsif (@operator == "LESSTHANEQUAL")
@@ -975,10 +971,7 @@ class BinExpressionNode
 		elsif (@operator == "ORBITS")
 			return "0b"+((@leftoperand.interprete(sym_table).to_i(2) | @rightoperand.interprete(sym_table).to_i(2)).to_s(2))
 		elsif (@operator == "EXCLUSIVE")
-			#####################################################################
-			# ALERTA ROJO 
-			#######################################################
-			#return @leftoperand.interprete(sym_table) ^ @rightoperand.interprete(sym_table)
+			return "0b"+((@leftoperand.interprete(sym_table).to_i(2) ^ @rightoperand.interprete(sym_table).to_i(2)).to_s(2))
 		elsif (@operator == "ANDBOOL")
 			return (@leftoperand.interprete(sym_table) && @rightoperand.interprete(sym_table))
 		elsif (@operator == "ORBOOL")
