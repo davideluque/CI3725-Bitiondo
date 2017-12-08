@@ -431,7 +431,6 @@ class InputNode
 
 end
 
-
 class OutputNode
 
 	def initialize(type, expressions)
@@ -452,10 +451,19 @@ class OutputNode
 	def interprete(symbol_table)
 
 		if @type == "OUTPUT"
-			@expressions.interprete(symbol_table)
+			if @expressions.class == ExpressionsNode
+				@expressions.interprete(symbol_table)
+			elsif @expressions.class == ConstExpressionNode
+				print @expressions.interprete(symbol_table)
+			end
+			return
 		elsif @type == "OUTPUTLN"
-			@expressions.interprete(symbol_table)
-			print "\n"
+			if @expressions.class == ExpressionsNode
+				@expressions.interprete(symbol_table)
+				print "\n"
+			elsif @expressions.class == ConstExpressionNode
+				print @expressions.interprete(symbol_table)
+			end
 		end
 		
 	end
@@ -937,6 +945,9 @@ class BinExpressionNode
 		elsif (@operator == "DIVISION") then
 			opizq = @leftoperand.interprete(sym_table).to_i
 			opdech = @rightoperand.interprete(sym_table).to_i
+			if (opdech == 0)
+				raise "Error. División por cero."
+			end
 			return  opizq / opdech 
 		elsif (@operator == "MODULUS") then
 			return @leftoperand.interprete(sym_table).to_i % @rightoperand.interprete(sym_table).to_i
