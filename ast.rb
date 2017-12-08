@@ -214,9 +214,9 @@ class StatementNode
 			bits_decl_size = @size.interprete(symbol_table).to_i
 			# si hay valor, verificar el tamaño del valor con el de la declaración
 			if @value
-				bits_value_size = @value.value.length - 2 # No contar 0b
+				bits_value_size = @value.value.value.length - 2 # No contar 0b
 				if bits_decl_size == bits_value_size
-					symbol_table.update(@identifier.value, @type.type, @value.value, bits_decl_size)
+					symbol_table.update(@identifier.value, @type.type, @value.value.value, bits_decl_size)
 				else
 					raise "El tamaño de la declaración no coincide con el tamaño de la inicialización"
 				end
@@ -311,23 +311,28 @@ class AssignationNode
 	#--------------------------------------------------------------------------#
 	def interprete(symbol_table)
 		
+		if symbol_table.find(@identifier.value).type == "bool"
+			val = @value.interprete(symbol_table)
+			puts val
+			symbol_table.update(@identifier.value, "bool", val,nil)
+		end
+
 		if symbol_table.find(@identifier.value).type == "bits"
 			bits_declared_expression = symbol_table.find(@identifier.value)
 
 			if not @position
-
 				bits_value_expression_size = @value.value.value.length - 2
-
 				if bits_declared_expression.size == bits_value_expression_size
-					symbol_table.update(@identifier.value, "bits", @value.value, bits_value_expression_size)
+					symbol_table.update(@identifier.value, "bits", @value.value.value, bits_value_expression_size)
 				else
 					raise "Error. Declaraste una variable de un tamaño y el tamaño que le estas intentando asignar no es el mismo."
 				end
-			elsif @positition
-				position_value = @position.interprete(symbol_table)
-				if 0 <= position_value <= bits_declared_expression.size - 2
-					if @value.value == '0' or @value.value == '1'
-						bits_declared_expression[position_value+2] = @value.value
+
+			elsif @position
+				position_value = @position.interprete(symbol_table).to_i
+				if (0 <= position_value) && (position_value <= bits_declared_expression.size - 1)
+					if @value.value.value == '0' or @value.value.value == '1'
+						bits_declared_expression.value[position_value+2] = @value.value.value
 					else
 						raise "A expresiones tipo bits solo se le pueden asignar ceros o unos."
 					end
@@ -336,8 +341,8 @@ class AssignationNode
 				end
 			end
 		end
-	end
 
+	end
 end
 
 class InputNode
@@ -440,10 +445,10 @@ class OutputNode
 	def interprete(symbol_table)
 
 		if @type == "OUTPUT"
-			puts @expressions.interprete(symbol_table)
+			print @expressions.interprete(symbol_table)
 		elsif @type == "OUTPUTLN"
-			puts @expressions.interprete(symbol_table)
-			puts"\n"
+			print @expressions.interprete(symbol_table)
+			print "\n"
 		end
 		
 	end
@@ -976,9 +981,9 @@ class BinExpressionNode
 			#######################################################
 			#return @leftoperand.interprete(sym_table) ^ @rightoperand.interprete(sym_table)
 		elsif (@operator == "ANDBOOL")
-			return eval(@leftoperand.interprete(sym_table)) && eval(@rightoperand.interprete(sym_table))
+			return (@leftoperand.interprete(sym_table) && @rightoperand.interprete(sym_table))
 		elsif (@operator == "ORBOOL")
-			return eval(@leftoperand.interprete(sym_table)) || eval(@rightoperand.interprete(sym_table))
+			return (@leftoperand.interprete(sym_table) || @rightoperand.interprete(sym_table))
 		end
 
 		raise "Hubo un error al verificar una operación binaria"
@@ -1098,10 +1103,13 @@ class ConstExpressionNode
 		if @type != "variable"
 			return @value.value
 		else
-			puts "SOY VARIABLE"
-			#puts symbol_table.find(@value.value)
-			puts symbol_table.find(@value.value).value
-			return symbol_table.find(@value.value).getValue()
+			val = symbol_table.find(@value.value)
+			if val.getType() == "int"
+				return val.getValue().to_i
+			elsif val.getType() == "bool"
+				puts val.getValue()
+				return eval(val.getValue())
+			end
 		end
 	end
 
