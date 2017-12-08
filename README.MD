@@ -1,6 +1,6 @@
 README
-Traductores e Interpretadores
-Etapa 2 - Analizador sintáctico
+| Traductores e Interpretadores
+| Lenguaje para operaciones en conjuntos de bits
 
 Autores:
 David Ernesto Cabeza Luque 1310191 <13-10191@usb.ve>
@@ -96,17 +96,31 @@ check() para cada nodo del árbol. Esta, se encarga de verificar el uso correcto
 A su vez, se implementó una tabla de hash para la tabla de símbolos en que contiene la declaración de cada 
 identificador a través de objetos que tienen como atributos name, type, size y value.
 
-Finalmente, para la impresión de errores se creó una lista en la cual se fueron almacenando durante el che-
-queo.
+Finalmente, para la impresión de errores se creó una lista en la cual se fueron almacenando durante el chequeo.
+
+Etapa 4
+
+Durante el desarrollo de esta etapa se añadieron los interpretadores de cada nodo del AST, la cual se encarga
+de ejecutar y evaluar expresiones.
+
+Ademas se intentó colocar los flags que permiten la ejecución al interpretador con los distintos comportamientos
+de las etapas anteriores. Sin embargo, esta parte se intentó implementar pero no pudo lograrse.
+
+Por otro lado, de haber errores que corresponden a las entregas anteriores serán mostrados por salida estándar
+y se abortará la ejecución del interpretador. 
  
 ESTADO ACTUAL DEL PROYECTO
 ----------------------------------------------------------------------------------------------------
 El programa que se comporta como un analizador lexicografico y sintáctico para el lenguaje Bitiondo, 
 cumple con todas las funcionalidades requeridas para la etapa 1 y la etapa 2.
 
-Sin embargo, para la etapa 3 que corresponde al analizador semático no.
+Se hicieron cambios en la tercera entrega que permitieron continuar correctamente en la cuarta.
+
+Sin embargo, para el caso de transformaciones de bits a entero no verifica que el identificador tipo 
+bits sea de 32 bits, es el unico error asociado a expresiones que trabajen con expresiones de tipo
+bits. A su vez, no se pudo completar el interpretador para el forbits.
 
 
 PROBLEMAS PRESENTES
 ----------------------------------------------------------------------------------------------------
-Las validaciones del outputln y forbits no funcionan correctamente.
+Forbits no funciona correctamente.
