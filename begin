@@ -1,0 +1,9 @@
+begin 
+	int i;
+	bool b;
+	bits s[4];
+
+	i = 2 - 3 + 5;
+	b = 2 == 2 && false != true;
+	s = 0b1001;
+end
