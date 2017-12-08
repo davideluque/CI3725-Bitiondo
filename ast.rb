@@ -315,7 +315,6 @@ class AssignationNode
 	# VALUE
 	#--------------------------------------------------------------------------#
 	def interprete(symbol_table)
-		
 		if symbol_table.find(@identifier.value).type == "bool"
 			val = @value.interprete(symbol_table)
 			return symbol_table.update(@identifier.value, "bool", val,nil)
@@ -328,11 +327,10 @@ class AssignationNode
 
 		if symbol_table.find(@identifier.value).type == "bits"
 			bits_declared_expression = symbol_table.find(@identifier.value)
-
 			if not @position
-				bits_value_expression_size = @value.value.value.length - 2
+				bits_value_expression_size = @value.interprete(symbol_table).length - 2
 				if bits_declared_expression.size == bits_value_expression_size
-					return symbol_table.update(@identifier.value, "bits", @value.value.value, bits_value_expression_size)
+					return symbol_table.update(@identifier.value, "bits", @value.interprete(symbol_table), bits_value_expression_size)
 				else
 					raise "Error. Declaraste una variable de un tamaño y el tamaño que le estas intentando asignar no es el mismo."
 				end
@@ -340,8 +338,8 @@ class AssignationNode
 			elsif @position
 				position_value = @position.interprete(symbol_table).to_i
 				if (0 <= position_value) && (position_value <= bits_declared_expression.size - 1)
-					if @value.value.value == '0' or @value.value.value == '1'
-						bits_declared_expression.value[position_value+2] = @value.value.value
+					if @value.interprete(symbol_table) == '0' or @value.interprete(symbol_table) == '1'
+						bits_declared_expression.value[position_value+2] = @value.interprete(symbol_table)
 					else
 						raise "A expresiones tipo bits solo se le pueden asignar ceros o unos."
 					end
@@ -973,13 +971,9 @@ class BinExpressionNode
 		elsif (@operator == "ISNOTEQUAL")
 			return @leftoperand.interprete(sym_table).to_i != @rightoperand.interprete(sym_table).to_i
 		elsif (@operator == "ANDBITS")
-			#####################################################################
-			# ALERTA ROJO
-			#########################################
-			#return @leftoperand.interprete(sym_table) & @rightoperand.interprete(sym_table)
+			return "0b"+((@leftoperand.interprete(sym_table).to_i(2) & @rightoperand.interprete(sym_table).to_i(2)).to_s(2))
 		elsif (@operator == "ORBITS")
-			#####################################################################
-			return @leftoperand.interprete(sym_table) | @rightoperand.interprete(sym_table)
+			return "0b"+((@leftoperand.interprete(sym_table).to_i(2) | @rightoperand.interprete(sym_table).to_i(2)).to_s(2))
 		elsif (@operator == "EXCLUSIVE")
 			#####################################################################
 			# ALERTA ROJO 
@@ -1060,8 +1054,9 @@ class UnaryExpressionNode
 	def interprete(sym_table)
 		if (@operator == "NOT") then return ! @operand.interprete(sym_table)
 		elsif (@operator == "NOTBITS") then return @operand.interprete(sym_table)[2..-1].tr('10', '01')
-		elsif @operator == "BITSREPRESENTATION" then return @operand.interprete(sym_table).to_i
-		elsif @operator == "TRANSFORM" then return "0b"+@operand.interprete(sym_table).to_s(2)
+		elsif @operator == "BITREPRESENTATION" then return @operand.interprete(sym_table).to_i
+		elsif @operator == "TRANSFORM" then
+		return "0b"+@operand.interprete(sym_table).to_s(2)
 		elsif @operator == "UMINUS" then return - @operand.interprete(sym_table).to_i
 		end
 
@@ -1110,10 +1105,11 @@ class ConstExpressionNode
 		else
 			val = symbol_table.find(@value.value)
 			if val.getType() == "int" 
-				puts val
 				return val.getValue().to_i
 			elsif val.getType() == "bool"
 				return eval(val.getValue())
+			elsif val.getType() == "bits"
+				return val.getValue()
 			end
 		end
 	end
