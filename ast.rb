@@ -466,7 +466,6 @@ class OutputNode
 		end
 		
 	end
-
 end
 
 class ExpressionsNode
