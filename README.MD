@@ -1,6 +1,6 @@
 README
-Traductores e Interpretadores
-Lenguaje para operaciones en conjuntos de bits
+| Traductores e Interpretadores
+| Lenguaje para operaciones en conjuntos de bits
 
 Autores:
 David Ernesto Cabeza Luque 1310191 <13-10191@usb.ve>
