@@ -667,8 +667,6 @@ class ForbitsLoopNode
 
 	def check(table)
 		
-		@identifier.value = k 
-
 		if @bits_expression.check(table) != "bits"
 			SemanticErrors.push("Error en línea #{@identifier.locationinfo[:line]}: La expresión no es de tipo bits")
 		end
@@ -678,17 +676,15 @@ class ForbitsLoopNode
 
 	def interprete(symbol_table)
 
-		k = expresion_int.interprete(sym_table)
+		k = @expresion_int.interprete(symbol_table).to_i
 
 		if @direction.value == "higher"
-			
-			@bits_expression[2+k..-1].each_char do |c|
+			@bits_expression.interprete(symbol_table)[2+k..-1].each_char do |c|
 				puts c 
 			end
 
 		elsif @direction.value == "lower"
-			
-			@bits_expression.reverse[k..2].each_char do |c|
+			@bits_expression.interprete(symbol_table).reverse[k..1].each_char do |c|
 				puts c
 			end
 
