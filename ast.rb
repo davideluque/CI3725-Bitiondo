@@ -318,12 +318,12 @@ class AssignationNode
 		
 		if symbol_table.find(@identifier.value).type == "bool"
 			val = @value.interprete(symbol_table)
-			symbol_table.update(@identifier.value, "bool", val,nil)
+			return symbol_table.update(@identifier.value, "bool", val,nil)
 		end
 
 		if symbol_table.find(@identifier.value).type == "int"
 			val = @value.interprete(symbol_table)
-			symbol_table.update(@identifier.value, "int", val, nil)
+			return symbol_table.update(@identifier.value, "int", val, nil)
 		end
 
 		if symbol_table.find(@identifier.value).type == "bits"
@@ -332,7 +332,7 @@ class AssignationNode
 			if not @position
 				bits_value_expression_size = @value.value.value.length - 2
 				if bits_declared_expression.size == bits_value_expression_size
-					symbol_table.update(@identifier.value, "bits", @value.value.value, bits_value_expression_size)
+					return symbol_table.update(@identifier.value, "bits", @value.value.value, bits_value_expression_size)
 				else
 					raise "Error. Declaraste una variable de un tamaño y el tamaño que le estas intentando asignar no es el mismo."
 				end
@@ -744,8 +744,6 @@ class RepeatWhileLoopNode
 
 	def interprete(symbol_table)
 		
-		#puts @condition.interprete(symbol_table)
-
 		if not @instruction2
 			@instruction1.interprete(symbol_table)
 			while(eval(@condition.interprete(symbol_table)))
@@ -967,8 +965,6 @@ class BinExpressionNode
 		elsif (@operator == "LESSTHANEQUAL")
 			return @leftoperand.interprete(sym_table).to_i <= @rightoperand.interprete(sym_table).to_i
 		elsif (@operator == "GREATERTHAN")
-			puts "OPERADOR IZQUIERDO: #{@leftoperand.interprete(sym_table)}"
-			puts "OPERADOR DERECHO: #{@rightoperand.interprete(sym_table)}"
 			return @leftoperand.interprete(sym_table).to_i > @rightoperand.interprete(sym_table).to_i
 		elsif (@operator == "GREATERTHANEQUAL")
 			return @leftoperand.interprete(sym_table).to_i >= @rightoperand.interprete(sym_table).to_i
@@ -1116,7 +1112,6 @@ class ConstExpressionNode
 			if val.getType() == "int"
 				return val.getValue().to_i
 			elsif val.getType() == "bool"
-				puts val.getValue()
 				return eval(val.getValue())
 			end
 		end
