@@ -1110,7 +1110,6 @@ class ConstExpressionNode
 		else
 			val = symbol_table.find(@value.value)
 			if val.getType() == "int" 
-				puts val
 				return val.getValue().to_i
 			elsif val.getType() == "bool"
 				return eval(val.getValue())
