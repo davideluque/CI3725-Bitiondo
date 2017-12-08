@@ -456,7 +456,6 @@ class OutputNode
 			elsif @expressions.class == ConstExpressionNode
 				print @expressions.interprete(symbol_table)
 			end
-			return
 		elsif @type == "OUTPUTLN"
 			if @expressions.class == ExpressionsNode
 				@expressions.interprete(symbol_table)
