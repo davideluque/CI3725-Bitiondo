@@ -1062,7 +1062,7 @@ class UnaryExpressionNode
 		elsif (@operator == "NOTBITS") then return @operand.interprete(sym_table)[2..-1].tr('10', '01')
 		elsif @operator == "BITSREPRESENTATION" then return @operand.interprete(sym_table).to_i
 		elsif @operator == "TRANSFORM" then return "0b"+@operand.interprete(sym_table).to_s(2)
-		elsif @operator == "UMINUS" then return - @operand.interprete(sym_table)
+		elsif @operator == "UMINUS" then return - @operand.interprete(sym_table).to_i
 		end
 
 		raise "Error al interpretar una operación unaria"
@@ -1109,7 +1109,8 @@ class ConstExpressionNode
 			return @value.value
 		else
 			val = symbol_table.find(@value.value)
-			if val.getType() == "int"
+			if val.getType() == "int" 
+				puts val
 				return val.getValue().to_i
 			elsif val.getType() == "bool"
 				return eval(val.getValue())
